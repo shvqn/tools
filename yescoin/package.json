@@ -1,0 +1,25 @@
+{
+  "name": "yescoin",
+  "version": "1.0.0",
+  "description": "yescoin",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "yescoin"
+  ],
+  "author": "cuadev",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.2",
+    "console-log-colors": "^0.5.0",
+    "cordova-background-timer": "^0.0.4",
+    "https-proxy-agent": "^7.0.4",
+    "jsdom": "^24.1.0",
+    "querystring": "^0.2.1",
+    "tunnel": "^0.0.6",
+    "uuid": "^9.0.1"
+  },
+  "type": "module"
+}
