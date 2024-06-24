@@ -1,0 +1,36 @@
+{
+    "manifest_version": 3,
+    "name": "Dân Cày Airdrop",
+    "version": "1.0.0",
+    "description": "Dân Cày Airdrop",
+    "permissions": [
+        "storage",
+        "activeTab",
+        "scripting"
+    ],
+    "action": {
+        "default_icon": {
+            "16": "logo.png",
+            "48": "logo.png",
+            "128": "logo.png"
+        }
+    },
+    "icons": {
+        "16": "logo.png",
+        "48": "logo.png",
+        "128": "logo.png"
+    },
+    "content_scripts": [
+        {
+            "matches": ["*://*/*"],
+            "js": ["content.js"],
+            "all_frames": true
+        }
+    ],
+    "host_permissions": [
+        "*://*/*"
+    ],
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self'"
+    }
+}
