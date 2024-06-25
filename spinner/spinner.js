@@ -310,7 +310,7 @@ async function main(stt, account, axios) {
 				let initData = await initDataUser(stt, urlData, axios);
 				if(initData){
 					let { levels, spinners, user, sections} = initData.initData;
-					console.log(blue.bold(`[#] Account ${stt} | User: ${user?.name}, Balance: ${user?.balance}, League: ${user.league.name}`));
+					console.log(blue.bold(`[#] Account ${stt} | User: ${user?.name}, Balance: ${user?.balance}`));
 					let fullhpAmount = user.fullhpAmount;
 
 					if(auto_farm){
