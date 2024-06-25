@@ -162,7 +162,6 @@ async function levelUpPet(stt, axios, pet_id) {
             return { level: null, cost: null };
         }
     } catch (error) {
-        // console.log(error);
         console.error(`[e] Account ${stt}: levelUpPet err: ${error.message}`);
         return { level: null, cost: null };
     }
@@ -412,7 +411,7 @@ async function main(stt, account, proxy)
                                     if (level !== null && newCost !== null) {
                                         console.log(green.bold(`[+] Account ${stt} | Successfully upgraded pet: ${petName}. Level now: ${level}, next level cost: ${newCost}`));
                                         await sleep(randomInt(3,5));
-                                    }
+                                    } else break;
                                 } else {
                                     console.log(yellow.bold(`[+] Account ${stt} | Not enough money to upgrade ${petName}. Balance: ${parseInt(balance)}, level up pet cost: ${cost}`));
                                     break;
