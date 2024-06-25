@@ -236,63 +236,62 @@ async function upgradeSpin(stt, userData, axios, spinnerId)
 }
 
 async function processSpin(stt, urlData, axios, spinners, mainSpinId){
-	let spinData = spinners.find((spinner) => spinner.id === mainSpinId);
-  if (spinData && spinData.hp > 0 && !spinData.isBroken) {
-    let { hp, spinnerStats } = spinData;
-    let { turbospin } = spinnerStats;
-    console.log(cyan.bold(`[#] Account ${stt} | Spin HP: ${hp}`));
-    if (hp >= 0) {
-      let totalTaps = 0;
-      while (totalTaps < hp) {
-        let tap = (Math.floor(Math.random() * 6) + 5);
-        totalTaps += tap*turbospin;
+	while (true) {
+		let spinData = spinners.find((spinner) => spinner.id === mainSpinId);
+		if (spinData && spinData.hp > 0 && !spinData.isBroken) {
+			let { hp, spinnerStats } = spinData;
+			let { turbospin } = spinnerStats;
+			console.log(cyan.bold(`[#] Account ${stt} | Spin HP: ${hp}`));
+			if (hp >= 0) {
+				let totalTaps = 0;
+				while (totalTaps < hp) {
+					let tap = (Math.floor(Math.random() * 6) + 5);
+					totalTaps += tap*turbospin;
 
-        let subTabs = await submitTaps(stt, urlData, axios, tap);
-        if (subTabs) {
-          console.log(
-            green.bold(
-              `[#] Account ${stt} | Spin: ${tap*turbospin}, HP Spin: ${Number(hp) - Number(totalTaps)}, Sleep: ${tap}`
-            )
-          );
-          await sleep(tap);
-        }
+					let subTabs = await submitTaps(stt, urlData, axios, tap);
+					if (subTabs) {
+						console.log(green.bold(`[#] Account ${stt} | Spin: ${tap*turbospin}, HP Spin: ${Number(hp) - Number(totalTaps)}, Sleep: ${tap}`));
+						await sleep(tap);
+					}
 
-        if (totalTaps >= hp) {
-          console.log(green.bold(`[#] Account ${stt} | Spin Done!`));
-          break;
-        }
-      }
-    }
+					if (totalTaps >= hp) {
+						console.log(green.bold(`[#] Account ${stt} | Spin Done!`));
+						break;
+					}
+				}
+			}
 
-    await sleep(5);
-    let reInit = await initDataUser(stt, urlData, axios);
-    let { spinners, user } = reInit.initData;
-    let mainSpinId = user.mainSpinnerId;
-    let respinData = spinners.find(
-      (spinner) => spinner.id === mainSpinId && spinner.isBroken === true
-    );
-    if (respinData) {
-      console.log(yellow.bold(`[#] Account ${stt} | Repair Spin!`));
-      await sleep(5);
-      let rp = await repairSpin(stt, urlData, axios);
-      if (rp) {
-        console.log(green.bold(`[#] Account ${stt} | Repair Spin Success!`));
-      }
-    }
-  } else {
-    let endRepair = spinData.endRepairTime;
-    if (endRepair) {
-      const utcPlus7Time = moment
-        .utc(endRepair)
-        .tz("Asia/Bangkok")
-        .format("HH:mm:ss DD-MM-YYYY");
-      console.log(
-        yellow.bold(
-          `[#] Account ${stt} | Repairs are being made. Completed at ${utcPlus7Time}!`
-        )
-      );
-    }
-  }
+			await sleep(5);
+			let reInit = await initDataUser(stt, urlData, axios);
+			let { spinners, user } = reInit.initData;
+			let mainSpinId = user.mainSpinnerId;
+			let respinData = spinners.find(
+				(spinner) => spinner.id === mainSpinId && spinner.isBroken === true
+			);
+			if (respinData) {
+				console.log(yellow.bold(`[#] Account ${stt} | Repair Spin!`));
+				await sleep(5);
+				let rp = await repairSpin(stt, urlData, axios);
+				if (rp) {
+					console.log(green.bold(`[#] Account ${stt} | Repair Spin Success!`));
+				}
+			}
+		} else {
+			let endRepair = spinData.endRepairTime;
+			if (endRepair) {
+				const utcPlus7Time = moment
+				.utc(endRepair)
+				.tz("Asia/Bangkok")
+				.format("HH:mm:ss DD-MM-YYYY");
+				console.log(
+					yellow.bold(
+						`[#] Account ${stt} | Repairs are being made. Completed at ${utcPlus7Time}!`
+					)
+				);
+				break;
+			}
+		}
+	}
 }
 //
 async function main(stt, account, axios) {
@@ -310,7 +309,7 @@ async function main(stt, account, axios) {
 				let initData = await initDataUser(stt, urlData, axios);
 				if(initData){
 					let { levels, spinners, user, sections} = initData.initData;
-					console.log(blue.bold(`[#] Account ${stt} | User: ${user.name}, Balance: ${user.balance}, League: ${user.league.name}`));
+					console.log(blue.bold(`[#] Account ${stt} | User: ${user?.name}, Balance: ${user?.balance}, League: ${user.league.name}`));
 					let fullhpAmount = user.fullhpAmount;
 
 					if(auto_farm){
