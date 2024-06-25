@@ -1,7 +1,7 @@
 @echo off
 cd time
 
-node time.js
+node timefarm.js
 
 pause
 
