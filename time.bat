@@ -1,4 +1,4 @@
-@echo off
+@echo on
 cd time
 
 node timefarm.js

@@ -1,4 +1,4 @@
-@echo off
+@echo on
 cd cex
 
 node cex.js

@@ -1,4 +1,4 @@
-@echo off
+@echo on
 cd yescoin
 
 node yescoin.js
