@@ -302,7 +302,7 @@ async function main() {
         }
 
         console.log("==============Tất cả tài khoản đã được xử lý=================");
-        for (let i = 600; i > 0; i--) {
+        for (let i = 12*3600; i > 0; i--) {
             process.stdout.write(`\rBắt đầu vòng lặp sau ${i} giây...`);
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
