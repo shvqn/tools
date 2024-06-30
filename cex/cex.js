@@ -8,22 +8,21 @@ const proxyFilePath = path.join(__dirname, 'proxy.txt');
 const queryData = fs.readFileSync(queryFilePath, 'utf8').trim().split('\n');
 const proxyData = fs.readFileSync(proxyFilePath, 'utf8').trim().split('\n');
 
-const animatedLoading = (durationInMilliseconds) => {
-    const frames = ["|", "/", "-", "\\"];
-    const endTime = Date.now() + durationInMilliseconds;
-    return new Promise(resolve => {
-        const interval = setInterval(() => {
-            const remainingTime = Math.floor((endTime - Date.now()) / 1000);
-            const frame = frames[Math.floor(Date.now() / 250) % frames.length];
-            process.stdout.write(`\rChờ đợi lần yêu cầu tiếp theo ${frame} - Còn lại ${Math.floor(remainingTime / 3600)} giờ ${Math.floor((remainingTime%3600)/60)} phút ${(remainingTime%3600)%60} giây...`);
-            if (Date.now() >= endTime) {
-                clearInterval(interval);
-                process.stdout.write("\rĐang chờ yêu cầu tiếp theo được hoàn thành.\n");
-                resolve();
-            }
-        }, 250);
-    });
-};
+async function countdown(time) {
+    let now = new Date();
+	let futureTime = new Date(now.getTime() + time * 1000);
+
+    let hours = futureTime.getHours();
+	let minutes = futureTime.getMinutes();
+	let seconds = futureTime.getSeconds();
+	
+	hours = hours < 10 ? '0' + hours : hours;
+	minutes = minutes < 10 ? '0' + minutes : minutes;
+	seconds = seconds < 10 ? '0' + seconds : seconds;
+	
+	console.log(`Run next at: ${hours}:${minutes}:${seconds}`);
+	await new Promise(resolve => setTimeout(resolve, time*1000));
+}
 
 const checkProxyIP = async (proxy) => {
     try {
@@ -40,6 +39,18 @@ const checkProxyIP = async (proxy) => {
         console.error('Error khi kiểm tra IP của proxy:', error);
     }
 };
+
+function formatTimeToUTC7(date) {
+    // Tính giờ UTC+7 bằng cách cộng thêm 7 giờ vào thời gian hiện tại
+    const utcOffset = 7; // UTC+7
+    const utc7Date = new Date(date.getTime() + utcOffset * 60 * 60 * 1000);
+
+    const hours = String(utc7Date.getUTCHours()).padStart(2, '0');
+    const minutes = String(utc7Date.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(utc7Date.getUTCSeconds()).padStart(2, '0');
+
+    return `${hours}:${minutes}:${seconds}`;
+}
 
 const processQuery = async (query_id, proxy) => {
     await checkProxyIP(proxy);
@@ -158,23 +169,19 @@ const processQuery = async (query_id, proxy) => {
 
     try {
         const response = await axios(config);
-        const { first_name, last_name, balance, availableTaps, farmReward, farmStartedAt, lastSeenAt } = response.data.data;
+        const { first_name, last_name, balance, availableTaps, farmReward, farmStartedAt} = response.data.data;
         console.log(`====================${first_name} ${last_name}====================`);
         console.log('[ Balance ]:', balance);
         console.log('[ Available Taps ]:', availableTaps);
         console.log('[ Farm Reward ]:', farmReward);
 
-        if (farmStartedAt && lastSeenAt) {
-            const farmStartedTime = new Date(farmStartedAt);
-            const lastSeenTime = new Date(lastSeenAt);
-            const timeDifference = Math.abs(lastSeenTime - farmStartedTime) / 36e5;
-
-            if (timeDifference > 4) {
+        const now = new Date()
+        const farmFinishAt = new Date(new Date(farmStartedAt).getTime() + 4*3600*1000)
+        if (farmFinishAt && now >= farmFinishAt) {
                 await claimFarm();
                 await startFarm();
-            }
         } else {
-            await startFarm();
+            console.log(`Có thể claim lúc ${formatTimeToUTC7(farmFinishAt)}`)
         }
 
         if (availableTaps > 0) {
@@ -190,7 +197,7 @@ const run = async () => {
         for (let i = 0; i < queryData.length; i++) {
             await processQuery(queryData[i], proxyData[i]);
         }
-        await animatedLoading(4 * 60 * 60 * 1000);  
+        await countdown(4*3600 + 5*60)
     }
 };
 
