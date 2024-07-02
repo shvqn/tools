@@ -15,7 +15,7 @@ let auto_claim_ref = true; // auto claim ref reward
 let auto_task = true; // auto task
 
 let auto_upgrade_clock = true; //auto upgrade clock
-let max_level_clock = 3; // max level clock  (max = 3)
+let max_level_clock = 6; // max level clock  (max = 3)
 // 
 
 function createAxiosInstance(proxy) {
