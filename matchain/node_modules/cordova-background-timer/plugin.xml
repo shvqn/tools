@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="cordova-background-timer"
+    version="0.0.4">
+
+    <name>BackgroundTimer</name>
+    <description></description>
+    <license>Apache License Version 2.0</license>
+    <keywords>cordova, phonegap, background timer</keywords>
+
+    <engines>
+        <engine name="cordova" version=">=3.4.0" />
+    </engines>
+
+    <js-module src="www/BackgroundTimer.js" name="BackgroundTimer">
+        <clobbers target="window.BackgroundTimer" />
+    </js-module>
+
+    <!-- android -->
+    <platform name="android">
+		<framework src="src/android/build.gradle" custom="true" type="gradleReference" />
+        <source-file src="src/android/ActivityHelper.java" target-dir="src/com/skycom/cordova/bgt" />
+        <source-file src="src/android/BackgroundTimer.java" target-dir="src/com/skycom/cordova/bgt" />
+        <source-file src="src/android/BackgroundTimerService.java" target-dir="src/com/skycom/cordova/bgt" />
+        <source-file src="src/android/BootReceiver.java" target-dir="src/com/skycom/cordova/bgt" />
+		<source-file src="src/android/PluginSettings.java" target-dir="src/com/skycom/cordova/bgt" />
+		<source-file src="src/android/TimerEvent.java" target-dir="src/com/skycom/cordova/bgt" />		
+		<source-file src="src/android/TimerEventReceiver.java" target-dir="src/com/skycom/cordova/bgt" />		
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <service android:name="com.skycom.cordova.bgt.BackgroundTimerService" />
+            <receiver android:name="com.skycom.cordova.bgt.BootReceiver" android:enabled="true" android:exported="false">
+                <intent-filter>
+                    <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                </intent-filter>
+            </receiver>
+            <receiver android:name="com.skycom.cordova.bgt.TimerEventReceiver" />
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <uses-permission android:name="android.permission.WAKE_LOCK" />
+            <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+        </config-file>
+		
+		<config-file target="res/xml/config.xml" parent="/*">
+            <preference name="KeepRunning" value="true" />
+        </config-file>
+
+        <config-file target="res/xml/config.xml" parent="/*">
+          <feature name="BackgroundTimer">
+            <param name="android-package" value="com.skycom.cordova.bgt.BackgroundTimer"/>
+          </feature>
+        </config-file>
+    </platform>
+     <!--<platform name="ios">has not implemented yet</platform>-->
+</plugin>

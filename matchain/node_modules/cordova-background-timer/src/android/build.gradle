@@ -1,0 +1,10 @@
+repositories{    
+  jcenter()
+  flatDir{
+      dirs 'src/android/libs'
+   }
+}
+
+dependencies {
+    compile 'org.greenrobot:eventbus:3.0.0'
+}
