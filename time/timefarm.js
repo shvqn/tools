@@ -394,7 +394,7 @@ async function runMulti() {
     if(numberThread > countPrx) {
 		numberThread = countPrx;
     }
-	let prx = await cPrx(); if(!prx) return;
+	// let prx = await cPrx(); if(!prx) return;
     const accountChunks = createChunks(accounts, numberThread);
 	
     for (const chunk of accountChunks) {
