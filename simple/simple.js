@@ -260,7 +260,7 @@ const processQuery = async (query_id, proxy, stt) => {
         const farmStartedAt = new Date(farmStartedAtInMs)
         const farmFinishAt = new Date(farmStartedAtInMs + 8*3600*1000)
         if (activeFarmingSeconds) {
-            if (now == farmFinishAt) {
+            if (now >= farmFinishAt) {
                 await claimFarm(stt, balance)
                 await startFarm(stt)
             } else console.log(`[#] Account ${stt} | Có thể claim farm lúc ${formatTimeToUTC7(farmFinishAt)} `)
