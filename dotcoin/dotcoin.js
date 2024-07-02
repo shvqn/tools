@@ -13,7 +13,7 @@ function clearConsole() {
 
 function loadCredentials() {
     try {
-        const credentialsList = fs.readFileSync('authorization.txt', 'utf8').split('\n');
+        const credentialsList = fs.readFileSync('./authorization.txt', 'utf8').split('\n');
         const credentials = credentialsList.map(cred => cred.trim());
         return credentials;
     } catch (error) {
