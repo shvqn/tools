@@ -1,6 +1,6 @@
 import querystring from 'querystring';
-import { countdown, randomInt, getConfig, contentId, sleep, getData, convertSecondsToHMS, getUserDataFromUrl, paramUrl, threadS, cPrx, formatNum } from './utils.js';
-import { cyan, yellow, blue, green, magenta } from 'console-log-colors';
+import { countdown, randomInt, sleep, getData, getUserDataFromUrl, cPrx, formatNum } from './utils.js';
+import { cyan, yellow, blue, green } from 'console-log-colors';
 import AxiosHelpers from "./helpers/axiosHelper.js";
 
 const accounts = getData("data_arena.txt");
@@ -274,7 +274,7 @@ async function runMulti() {
 			numberThread = countPrx
     }
     const accountChunks = createChunks(accounts, numberThread);
-		let prx = await cPrx(); if(!prx) return;
+		// let prx = await cPrx(); if(!prx) return;
     for (const chunk of accountChunks) {
         let proxy = null;
         const tasks = chunk.map(async (account, index) => {
