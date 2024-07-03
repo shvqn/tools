@@ -41,7 +41,6 @@ const checkProxyIP = async (proxy) => {
 };
 
 function formatTimeToUTC7(date) {
-    // Tính giờ UTC+7 bằng cách cộng thêm 7 giờ vào thời gian hiện tại
     const utcOffset = 7; // UTC+7
     const utc7Date = new Date(date.getTime() + utcOffset * 60 * 60 * 1000);
 
@@ -52,7 +51,7 @@ function formatTimeToUTC7(date) {
     return `${hours}:${minutes}:${seconds}`;
 }
 
-const processQuery = async (query_id, proxy) => {
+const processQuery = async (stt, query_id, proxy) => {
     await checkProxyIP(proxy);
     query_id = query_id.replace(/[\r\n]+/g, '');
     const user_id_match = query_id.match(/user=%7B%22id%22%3A(\d+)/);
@@ -93,7 +92,7 @@ const processQuery = async (query_id, proxy) => {
         httpsAgent: agent
     };
 
-    const claimTaps = async (availableTaps) => {
+    const claimTaps = async (stt, availableTaps) => {
         const claimTapsPayload = {
             "devAuthData": user_id,
             "authData": query_id,
@@ -111,8 +110,8 @@ const processQuery = async (query_id, proxy) => {
         try {
             const claimResponse = await axios(claimTapsConfig);
             const { balance, availableTaps } = claimResponse.data.data;
-            console.log('Đang claim taps....');
-            console.log('Balance:', balance);
+            console.log(`[#] Account ${stt} | Đang claim taps....`);
+            console.log(`[#] Account ${stt} | Balance: ${balance}`);
             if (availableTaps > 0) {
                 await claimTaps(availableTaps);
             }
@@ -121,7 +120,7 @@ const processQuery = async (query_id, proxy) => {
         }
     };
 
-    const claimFarm = async () => {
+    const claimFarm = async (stt) => {
         const claimFarmPayload = {
             "devAuthData": user_id,
             "authData": query_id,
@@ -138,13 +137,13 @@ const processQuery = async (query_id, proxy) => {
 
         try {
             await axios(claimFarmConfig);
-            console.log('Đang claim farm....');
+            console.log(`[#] Account ${stt} | Đang claim farm....`);
         } catch (error) {
             console.error('Lỗi khi gửi yêu cầu claimFarm:', error);
         }
     };
 
-    const startFarm = async () => {
+    const startFarm = async (stt) => {
         const startFarmPayload = {
             "devAuthData": user_id,
             "authData": query_id,
@@ -161,31 +160,179 @@ const processQuery = async (query_id, proxy) => {
 
         try {
             await axios(startFarmConfig);
-            console.log('Đang khởi động farm....');
+            console.log(`[#] Account ${stt} | Đang khởi động farm....`);
         } catch (error) {
             console.error('Lỗi khi gửi yêu cầu startFarm:', error);
         }
     };
 
+    const startTask = async (stt, id) => {
+        const startFarmPayload = {
+            "devAuthData": user_id,
+            "authData": query_id,
+            "data": {
+                "taskId": id,
+            }
+        };
+
+        const startFarmConfig = {
+            method: 'post',
+            url: 'https://cexp.cex.io/api/startTask',
+            headers: config.headers,
+            data: startFarmPayload,
+            httpsAgent: agent
+        };
+
+        try {
+            await axios(startFarmConfig);
+            console.log(`[#] Account ${stt} | Đang start task...`);
+        } catch (error) {
+            console.error('Lỗi khi gửi yêu cầu starttask:', error);
+        }
+    };
+
+    const checkTask = async (stt, id) => {
+        const startFarmPayload = {
+            "devAuthData": user_id,
+            "authData": query_id,
+            "data": {
+                "taskId": id,
+            }
+        };
+
+        const startFarmConfig = {
+            method: 'post',
+            url: 'https://cexp.cex.io/api/checkTask',
+            headers: config.headers,
+            data: startFarmPayload,
+            httpsAgent: agent
+        };
+
+        try {
+            await axios(startFarmConfig);
+            console.log(`[#] Account ${stt} | Đang check task...`);
+        } catch (error) {
+            console.error('Lỗi khi gửi yêu cầu checktask:', error);
+        }
+    };
+
+    const claimTask = async (stt, id) => {
+        const startFarmPayload = {
+            "devAuthData": user_id,
+            "authData": query_id,
+            "data": {
+                "taskId": id,
+            }
+        };
+
+        const startFarmConfig = {
+            method: 'post',
+            url: 'https://cexp.cex.io/api/claimTask',
+            headers: config.headers,
+            data: startFarmPayload,
+            httpsAgent: agent
+        };
+
+        try {
+            await axios(startFarmConfig);
+            console.log(`[#] Account ${stt} | Đang claim task...`);
+        } catch (error) {
+            console.error('Lỗi khi gửi yêu cầu claimtask:', error);
+        }
+    };
+
+    const getRef = async () => {
+        const startFarmPayload = {
+            "devAuthData": user_id,
+            "authData": query_id,
+            "data": {}
+        };
+
+        const startFarmConfig = {
+            method: 'post',
+            url: 'https://cexp.cex.io/api/getChildren',
+            headers: config.headers,
+            data: startFarmPayload,
+            httpsAgent: agent
+        };
+
+        try {
+            const response = await axios(startFarmConfig);
+            if (response && response.status == 200) {
+                return response.data.data.totalRewardsToClaim
+            } else return 0
+        } catch (error) {
+            console.error('Lỗi khi gửi yêu cầu getRef:', error);
+        }
+    };
+
+    const claimRef = async (stt) => {
+        const startFarmPayload = {
+            "devAuthData": user_id,
+            "authData": query_id,
+            "data": {}
+        };
+
+        const startFarmConfig = {
+            method: 'post',
+            url: 'https://cexp.cex.io/api/claimFromChildren',
+            headers: config.headers,
+            data: startFarmPayload,
+            httpsAgent: agent
+        };
+
+        try {
+            const response = await axios(startFarmConfig);
+            if (response && response.status == 200) {
+                console.log(`[#] Account ${stt} | Claim ref thành công `)
+            }
+        } catch (error) {
+            console.error('Lỗi khi gửi yêu cầu claimRef:', error);
+        }
+    };
+
     try {
         const response = await axios(config);
-        const { first_name, last_name, balance, availableTaps, farmReward, farmStartedAt} = response.data.data;
-        console.log(`====================${first_name} ${last_name}====================`);
-        console.log('[ Balance ]:', balance);
-        console.log('[ Available Taps ]:', availableTaps);
-        console.log('[ Farm Reward ]:', farmReward);
+        const { first_name, last_name, balance, availableTaps, farmStartedAt, tasks} = response.data.data;
+        console.log(`[#] Account ${stt} | ${first_name} ${last_name}, Balance: ${balance}, Available Taps: ${availableTaps} `);
 
         const now = new Date()
         const farmFinishAt = new Date(new Date(farmStartedAt).getTime() + 4*3600*1000)
         if (farmFinishAt && now >= farmFinishAt) {
-                await claimFarm();
-                await startFarm();
+                await claimFarm(stt);
+                await startFarm(stt);
         } else {
-            console.log(`Có thể claim lúc ${formatTimeToUTC7(farmFinishAt)}`)
+            console.log(`[#] Account ${stt} | Có thể claim lúc ${formatTimeToUTC7(farmFinishAt)}`)
         }
 
         if (availableTaps > 0) {
-            await claimTaps(availableTaps);
+            await claimTaps(stt, availableTaps);
+        }
+
+        const availableTasks = Object.keys(tasks)
+            .filter(key => tasks[key].type !== "referral")
+            .filter(key => tasks[key].state !== "Claimed")
+            .filter(key => key !== "register_on_cex_io")
+            .reduce((obj, key) => {
+                obj[key] = tasks[key];
+                return obj;
+            }, {});
+        
+        const refBalance = await getRef()
+        if (refBalance) {
+            await claimRef(stt)
+        }
+
+        for (const key in availableTasks) {
+            if (availableTasks[key].state == "NONE"){
+                await startTask(stt, key)
+            }
+            if (availableTasks[key].state == "ReadyToCheck") {
+                await checkTask(stt, key)
+            } 
+            if (availableTasks[key].state == "ReadyToClaim"){
+                await claimTask(stt, key)
+            }
         }
     } catch (error) {
         console.error('Lỗi khi gửi yêu cầu:', error);
@@ -195,7 +342,7 @@ const processQuery = async (query_id, proxy) => {
 const run = async () => {
     while (true) {
         for (let i = 0; i < queryData.length; i++) {
-            await processQuery(queryData[i], proxyData[i]);
+            await processQuery(i+1, queryData[i], proxyData[i]);
         }
         await countdown(4*3600 + 5*60)
     }
