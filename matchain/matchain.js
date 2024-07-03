@@ -217,16 +217,33 @@ async function claimTask(stt, token, axios, name, uid) {
 		console.error(`claimTask error: ${e}`);
 	}
 }
-async function claimRef(stt, token, axios) {
+async function getRefBalance(stt, token, axios, uid) {
 	try {
 		const headers = {
 				'Authorization': token,
 			}
 		const payload = {
+			'uid': uid,
 		}
-		const response = await axios.post('https://tgapp-api.matchain.io/api/tgapp/v1/point/task/claim', payload, {headers});
+		const response = await axios.post('https://tgapp-api.matchain.io/api/tgapp/v1/point/invite/balance', payload, {headers});
 		if (response && response.status == 200) {
-			console.log(`[#] Account ${stt} | Claim ref`)
+			return response.data.data.balance;
+		} else return 0
+	} catch (e) {
+		console.error(`getRef error: ${e}`);
+	}
+}
+async function claimRef(stt, token, axios, uid) {
+	try {
+		const headers = {
+				'Authorization': token,
+			}
+		const payload = {
+			'uid': uid
+		}
+		const response = await axios.post('https://tgapp-api.matchain.io/api/tgapp/v1/point/invite/claim', payload, {headers});
+		if (response && response.status == 200) {
+			console.log(`[#] Account ${stt} | Claim ref successful`)
 		}
 	} catch (e) {
 		console.error(`claimRef error: ${e}`);
@@ -251,6 +268,10 @@ async function main(stt, account, axios)
 				await startFarm(stt, access_token, axios, uid)
 			} else if (checkFarm === 0) {
 				startFarm(stt, access_token, axios, uid)
+			}
+			const refBalance = await getRefBalance(stt, access_token, axios, uid) 
+			if (refBalance) {
+				await claimRef(stt, access_token, axios, uid)
 			}
 			
 			const taskList = await getTaskList(stt, access_token, axios, uid)
