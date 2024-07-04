@@ -4,7 +4,7 @@ import { cyan, yellow, blue, green } from 'console-log-colors';
 import AxiosHelpers from "./helpers/axiosHelper.js";
 import readline from 'readline';
 
-const accounts = getData("data_arena.txt");
+const accounts = getData("data_blum.txt");
 const proxies = getData("proxy.txt");
 
 let timeRerun = 8*60; //phút time nghỉ mỗi lượt chạy
@@ -221,83 +221,83 @@ async function main(stt, account, axios)
         let infoAcc = await profile(stt, token, axios);
 
         if(infoAcc){
-			let {username, balance, storage, farmEnd, farmStart} = infoAcc;
+			let {username, balance, storage, farmEnd} = infoAcc;
 			console.log(blue.bold(`[*] Account ${stt} | User: ${username}, XP: ${formatNum(balance.$numberDecimal)}, Storage: ${formatNum(storage.$numberDecimal)}!`));
 
-			// if(auto_farm){
-			// 	console.log(cyan.bold(`[*] Account ${stt} | Auto Farm...`));
-			// 	const currentTime = Date.now();
-			// 	if (currentTime >= farmEnd) {
-			// 		await sleep(randomInt(1,5));
-			// 		let farmRs = await farmCoin(stt, token, axios);
-			// 		if (farmRs){
-			// 			console.log(green.bold(`[*] Account ${stt} | Farming Success!, XP(+): ${formatNum(storage.$numberDecimal)}`));
-			// 		}else{
-			// 			console.log(yellow.bold(`[*] Account ${stt} | Farm Waiting...`));
-			// 		}
-			// 	}
-			// }
+			if(auto_farm){
+				console.log(cyan.bold(`[*] Account ${stt} | Auto Farm...`));
+				const currentTime = Date.now();
+				if (currentTime >= farmEnd) {
+					await sleep(randomInt(1,5));
+					let farmRs = await farmCoin(stt, token, axios);
+					if (farmRs){
+						console.log(green.bold(`[*] Account ${stt} | Farming Success!, XP(+): ${formatNum(storage.$numberDecimal)}`));
+					}else{
+						console.log(yellow.bold(`[*] Account ${stt} | Farm Waiting...`));
+					}
+				}
+			}
 
-			// if(auto_farm_ref){
-			// 	console.log(cyan.bold(`[*] Account ${stt} | Claim Ref...`));
-			// 	await sleep(randomInt(1,5));
-			// 	let clRef = await claimRef(stt, token, axios);
-			// 	if(clRef)
-			// 	{
-			// 		console.log(green.bold(`[*] Account ${stt} | Claim Ref Success!`));
-			// 	}
-			// }
+			if(auto_farm_ref){
+				console.log(cyan.bold(`[*] Account ${stt} | Claim Ref...`));
+				await sleep(randomInt(1,5));
+				let clRef = await claimRef(stt, token, axios);
+				if(clRef)
+				{
+					console.log(green.bold(`[*] Account ${stt} | Claim Ref Success!`));
+				}
+			}
 
-			// if(auto_task){
+			if(auto_task){
 
-			// 	let tasksAll;
-			// 	console.log(cyan.bold(`[*] Account ${stt} | Auto Task...`));
-			// 	await sleep(randomInt(1,5));
-			// 	tasksAll = await getTasks(stt, token, axios);
-			// 	if(tasksAll){
-			// 		let { docs } = tasksAll;
-			// 		if(docs.length > 0){
-			// 			let taskPending = docs.filter(task => task.status == 'pending');
-			// 			if(taskPending.length > 0){
-			// 				for(const task of taskPending){
-			// 					let idTask = task._id;
-			// 					let titleTask = task.title;
-			// 					let xpTask = task.bonus.$numberDecimal;
-			// 					console.log(yellow.bold(`[*] Account ${stt} | Start Task: ${titleTask}, XP: ${formatNum(xpTask)}`));
-			// 					let sTask = await submitTask(stt, token, axios, idTask);
-			// 					if(sTask){
-			// 						let sl = randomInt(15,20);
-			// 						console.log(cyan.bold(`[*] Account ${stt} | Submit Task: ${titleTask}, XP: ${formatNum(xpTask)}, Sleep: ${sl}s`));
-			// 						await sleep(sl);
-			// 					}
-			// 				}
-			// 			}
-			// 		}
-			// 	}
+				let tasksAll;
+				console.log(cyan.bold(`[*] Account ${stt} | Auto Task...`));
+				await sleep(randomInt(1,5));
+				tasksAll = await getTasks(stt, token, axios);
+				if(tasksAll){
+					let { docs } = tasksAll;
+					if(docs.length > 0){
+						let taskPending = docs.filter(task => task.status == 'pending');
+						if(taskPending.length > 0){
+							for(const task of taskPending){
+								let idTask = task._id;
+								let titleTask = task.title;
+								let xpTask = task.bonus.$numberDecimal;
+								console.log(yellow.bold(`[*] Account ${stt} | Start Task: ${titleTask}, XP: ${formatNum(xpTask)}`));
+								let sTask = await submitTask(stt, token, axios, idTask);
+								if(sTask){
+									let sl = randomInt(15,20);
+									console.log(cyan.bold(`[*] Account ${stt} | Submit Task: ${titleTask}, XP: ${formatNum(xpTask)}, Sleep: ${sl}s`));
+									await sleep(sl);
+								}
+							}
+						}
+					}
+				}
 				
-			// 	//check 2
-			// 	await sleep(randomInt(2,5));
-			// 	tasksAll = await getTasks(stt, token, axios);
-			// 	if(tasksAll){
-			// 		let { docs } = tasksAll;
-			// 		if(docs.length > 0){
-			// 			let taskClaim = docs.filter(task => task.status == 'completed');
-			// 			if(taskClaim.length > 0){
-			// 				for(const task of taskClaim){
-			// 					let idTask = task._id;
-			// 					let titleTask = task.title;
-			// 					let xpTask = task.bonus.$numberDecimal;
-			// 					console.log(yellow.bold(`[*] Account ${stt} | Claim Task: ${titleTask}, XP: ${formatNum(xpTask)}`));
-			// 					let cTask = await claimTask(stt, token, axios, idTask);
-			// 					if(cTask){
-			// 						console.log(green.bold(`[*] Account ${stt} | Claimed Task: ${titleTask}, XP(+): ${formatNum(xpTask)}`));
-			// 						await sleep(randomInt(3,5));
-			// 					}
-			// 				}
-			// 			}
-			// 		}
-			// 	}
-			// }
+				//check 2
+				await sleep(randomInt(2,5));
+				tasksAll = await getTasks(stt, token, axios);
+				if(tasksAll){
+					let { docs } = tasksAll;
+					if(docs.length > 0){
+						let taskClaim = docs.filter(task => task.status == 'completed');
+						if(taskClaim.length > 0){
+							for(const task of taskClaim){
+								let idTask = task._id;
+								let titleTask = task.title;
+								let xpTask = task.bonus.$numberDecimal;
+								console.log(yellow.bold(`[*] Account ${stt} | Claim Task: ${titleTask}, XP: ${formatNum(xpTask)}`));
+								let cTask = await claimTask(stt, token, axios, idTask);
+								if(cTask){
+									console.log(green.bold(`[*] Account ${stt} | Claimed Task: ${titleTask}, XP(+): ${formatNum(xpTask)}`));
+									await sleep(randomInt(3,5));
+								}
+							}
+						}
+					}
+				}
+			}
 			let attemptsLeft = await getAttemptsLeft(stt, token, axios)
 			while (attemptsLeft) {
 				const gameData = {
