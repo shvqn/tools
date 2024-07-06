@@ -2,6 +2,7 @@ import querystring from 'querystring';
 import { countdown, randomInt, sleep } from './utils.js';
 import { cyan, yellow, blue, green, magenta } from 'console-log-colors';
 import AxiosHelpers from "./helpers/axiosHelper.js";
+import readline from 'readline'
 
 //config
 const accounts = [
@@ -26,7 +27,7 @@ function formatTimeToUTC7(date) {
     return `${hours}:${minutes}:${seconds}`;
 }
 
-function createAxiosInstance(proxy) {
+function createAxiosInstance(proxy, token) {
 	return new AxiosHelpers({
     headers: {
       "Content-Type": "application/json",
@@ -34,6 +35,7 @@ function createAxiosInstance(proxy) {
       "Accept-Encoding": "gzip, deflate, br, zstd",
       "Accept-Language": "vi;q=0.8",
       "Origin": "https://tgapp.matchain.io",
+	  'Authorization': token,
       "Referer": "https://tgapp.matchain.io/",
       "Sec-Ch-Ua": '"Not/A)Brand";v="8", "Chromium";v="126", "Brave";v="126"',
       "Sec-Ch-Ua-Mobile": "?0",
@@ -65,10 +67,9 @@ async function encodeUrl(input) {
 
 async function login(stt, code, axios){
 	try{
-		const headers = {};
 		const payload = await encodeUrl(code)
 
-		const response = await axios.post('https://tgapp-api.matchain.io/api/tgapp/v1/user/login', payload, { headers: headers });
+		const response = await axios.post('https://tgapp-api.matchain.io/api/tgapp/v1/user/login', payload);
 		if(response && response.data.code == 200){
 			console.log(blue.bold(`[*] Account ${stt}: Get token success`));
 			return {
@@ -84,21 +85,21 @@ async function login(stt, code, axios){
 
 async function getAccountInfo(stt, token, axios, uid) {
 	try {
-			const headers = {
-				'Authorization': token,
-			};
-			const payload = {
-				'uid': uid,
-			}
-			const getAccountResponse = await axios.post('https://tgapp-api.matchain.io/api/tgapp/v1/user/profile', payload, { headers });
-			if (getAccountResponse.status === 200) {
-				const {Nickname, Balance} = getAccountResponse.data.data;
-					console.log(magenta(`[+] Account ${stt}: ${Nickname}, Balance: ${Balance}`));
-					return getAccountResponse.data.data;
-			} else {
-					console.error(`[+] Account ${stt}: Error ${getAccountResponse.status}`);
-					return null;
-			}
+		const headers = {
+			'Authorization': token,
+		};
+		const payload = {
+			'uid': uid,
+		}
+		const getAccountResponse = await axios.post('https://tgapp-api.matchain.io/api/tgapp/v1/user/profile', payload, { headers });
+		if (getAccountResponse.status === 200) {
+			const {Nickname, Balance} = getAccountResponse.data.data;
+				console.log(magenta(`[+] Account ${stt}: ${Nickname}, Balance: ${Balance}`));
+				return getAccountResponse.data.data;
+		} else {
+				console.error(`[+] Account ${stt}: Error ${getAccountResponse.status}`);
+				return null;
+		}
 	} catch (error) {
 			console.error('get account info err:', error);
 	}
@@ -165,7 +166,38 @@ async function startFarm(stt,token,axios, uid) {
 		console.error(`startFarm error: ${e}`);	
 	}
 }
-
+async function getDailyBoost(stt, token, axios) {
+	try {
+		const headers = {
+				'Authorization': token,
+			}
+		const response = await axios.get('https://tgapp-api.matchain.io/api/tgapp/v1/daily/task/status', {headers});
+		if (response && response.status == 200) {
+			const responseData = response.data.data;
+			console.log(`[#] Account ${stt} | ${responseData[0].name}: ${responseData[0].level}, ${responseData[1].name}: ${responseData[1].level}`)
+			return response.data.data
+		}
+	} catch (e) {
+		console.error(`getDailyBoost error: ${e}`);
+	}
+}
+async function dailyBooster(stt,token,axios, uid) {
+	try {
+		const headers = {
+			'Authorization': token,
+		}
+		const payload = {
+			'type': "daily",
+			'uid': uid,
+		}
+		const response = await axios.post('https://tgapp-api.matchain.io/api/tgapp/v1/daily/task/purchase', payload, {headers});
+		if (response && response.status ==200) {
+			console.log(`[#] Account ${stt} | ${response.data.msg}`)
+		}
+	} catch (e) {
+		console.error(`dailyBooster error: ${e}`);	
+	}
+}
 async function getTaskList(stt, token, axios, uid) {
 	try {
 		const headers = {
@@ -249,7 +281,46 @@ async function claimRef(stt, token, axios, uid) {
 		console.error(`claimRef error: ${e}`);
 	}
 }
-
+async function playGame(stt, token, axios) {
+	try {
+		const headers = {
+				'Authorization': token,
+			}
+		const response = await axios.get('https://tgapp-api.matchain.io/api/tgapp/v1/game/play', {headers});
+		if (response && response.status == 200) {
+			console.log(`[#] Account ${stt} | Playing game...`)
+			return response.data.data
+		}
+	} catch (e) {
+		console.error(`playGame error: ${e}`);
+	}
+}
+async function claimGame(stt, token, axios, gameId) {
+	try {
+		const headers = {
+				'Authorization': token,
+			}
+		const payload = {
+			'game_id': gameId,
+			'point': 50
+		}
+		const response = await axios.post('https://tgapp-api.matchain.io/api/tgapp/v1/game/play', payload, {headers});
+		console.log(response)
+		if (response && response.status == 200) {
+			console.log(`[#] Account ${stt} | Claim ${payload.point} point`)
+			return response.data.data
+		}
+	} catch (e) {
+		console.error(`claimGame error: ${e}`);
+	}
+}
+async function waitGame(stt, seconds) {
+	for (let i = seconds; i >= 0; i--) {
+		process.stdout.write(`[*] Account ${stt} | Wait ${i} seconds`);
+		readline.cursorTo(process.stdout, 0);
+		await new Promise(resolve => setTimeout(resolve, 1000));
+	}
+}
 
 //
 async function main(stt, account, axios)
@@ -261,7 +332,7 @@ async function main(stt, account, axios)
 		let access_token = loginInfo.token
 		let uid = loginInfo.uid
         if(access_token){
-            await getAccountInfo(stt, access_token, axios, uid);
+            const accountInfo = await getAccountInfo(stt, access_token, axios, uid);
 			const checkFarm = await checkClaimFarm(stt, access_token, axios, uid)
 			if (checkFarm===1) {
 				await claimFarm(stt, access_token, axios, uid)
@@ -269,6 +340,11 @@ async function main(stt, account, axios)
 			} else if (checkFarm === 0) {
 				startFarm(stt, access_token, axios, uid)
 			}
+			const dailyBoostData = await getDailyBoost(stt, access_token, axios)
+			if (dailyBoostData[0].current_count < dailyBoostData[0].task_count && accountInfo.Balance >= dailyBoostData[0].point ) {
+				await dailyBooster(stt, access_token, axios, uid)
+			}
+
 			const refBalance = await getRefBalance(stt, access_token, axios, uid) 
 			if (refBalance) {
 				await claimRef(stt, access_token, axios, uid)
@@ -279,6 +355,17 @@ async function main(stt, account, axios)
 			for (const key in availableTask) {
 				await completeTask(stt, access_token, axios, availableTask[key].name, uid)
 				await claimTask(stt, access_token, axios, availableTask[key].name, uid)
+			}
+
+			const gameData = await playGame(stt, access_token, axios)
+			if (gameData.game_id) {
+				await waitGame(stt, 31)
+				const gameCount = await claimGame(stt, access_token, axios, gameData.game_id)
+				while (gameCount) {
+					await playGame(stt, access_token,axios,uid)
+					await waitGame(stt, 30)
+					gameCount = await claimGame(stt, access_token, axios, gameData.game_id)
+				}
 			}
 			console.log(cyan.bold(`[#] Account ${stt} | Done!`));
         }
@@ -319,7 +406,7 @@ async function runMulti() {
             }
 
 			if (account) {
-					const axiosInstance = createAxiosInstance(proxy);
+					const axiosInstance = createAxiosInstance(proxy, account);
 					let stt = Number(globalIndex) + Number(1);
 					const maskedProxy = proxy.slice(0, -10) + '**********';
 					console.log(`[#] Account ${stt} | Proxy: ${maskedProxy}`);

@@ -4,7 +4,7 @@ import { cyan, yellow, blue, green } from 'console-log-colors';
 import AxiosHelpers from "./helpers/axiosHelper.js";
 import readline from 'readline';
 
-const accounts = getData("data_blum.txt");
+const accounts = getData("data_arena.txt");
 const proxies = getData("proxy.txt");
 
 let timeRerun = 8*60; //phút time nghỉ mỗi lượt chạy
