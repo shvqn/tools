@@ -7,7 +7,7 @@ import AxiosHelpers from "./helpers/axiosHelper.js";
 const accounts = getData("data_timefarm.txt");
 const proxies = getData("proxy.txt");
 
-let timeRerun = 4*60; //phút time nghỉ mỗi lượt chạy
+let timeRerun = 5*60; //phút time nghỉ mỗi lượt chạy
 let numberThread = 1; // số luồng chạy /1 lần 
 
 let auto_farm = true; // auto farm
