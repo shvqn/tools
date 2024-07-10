@@ -6,7 +6,7 @@ import readline from 'readline'
 
 //config
 const accounts = [
-	'https://tgapp.matchain.io/#tgWebAppData=user%3D%257B%2522id%2522%253A5904599269%252C%2522first_name%2522%253A%2522Qu%25C3%25A2n%2522%252C%2522last_name%2522%253A%2522%2522%252C%2522username%2522%253A%2522Shvqn%2522%252C%2522language_code%2522%253A%2522vi%2522%252C%2522allows_write_to_pm%2522%253Atrue%257D%26chat_instance%3D-7347206662651251819%26chat_type%3Dsender%26auth_date%3D1719905379%26hash%3D885d84a3d9078051fed0cb4abc946990f0540ac41cf0d437be8a55b925e23d53&tgWebAppVersion=7.4&tgWebAppPlatform=web&tgWebAppThemeParams=%7B%22bg_color%22%3A%22%23212121%22%2C%22button_color%22%3A%22%238774e1%22%2C%22button_text_color%22%3A%22%23ffffff%22%2C%22hint_color%22%3A%22%23aaaaaa%22%2C%22link_color%22%3A%22%238774e1%22%2C%22secondary_bg_color%22%3A%22%23181818%22%2C%22text_color%22%3A%22%23ffffff%22%2C%22header_bg_color%22%3A%22%23212121%22%2C%22accent_text_color%22%3A%22%238774e1%22%2C%22section_bg_color%22%3A%22%23212121%22%2C%22section_header_text_color%22%3A%22%238774e1%22%2C%22subtitle_text_color%22%3A%22%23aaaaaa%22%2C%22destructive_text_color%22%3A%22%23ff595a%22%7D',
+	// 'https://tgapp.matchain.io/#tgWebAppData=user%3D%257B%2522id%2522%253A5904599269%252C%2522first_name%2522%253A%2522Qu%25C3%25A2n%2522%252C%2522last_name%2522%253A%2522%2522%252C%2522username%2522%253A%2522Shvqn%2522%252C%2522language_code%2522%253A%2522vi%2522%252C%2522allows_write_to_pm%2522%253Atrue%257D%26chat_instance%3D-7347206662651251819%26chat_type%3Dsender%26auth_date%3D1719905379%26hash%3D885d84a3d9078051fed0cb4abc946990f0540ac41cf0d437be8a55b925e23d53&tgWebAppVersion=7.4&tgWebAppPlatform=web&tgWebAppThemeParams=%7B%22bg_color%22%3A%22%23212121%22%2C%22button_color%22%3A%22%238774e1%22%2C%22button_text_color%22%3A%22%23ffffff%22%2C%22hint_color%22%3A%22%23aaaaaa%22%2C%22link_color%22%3A%22%238774e1%22%2C%22secondary_bg_color%22%3A%22%23181818%22%2C%22text_color%22%3A%22%23ffffff%22%2C%22header_bg_color%22%3A%22%23212121%22%2C%22accent_text_color%22%3A%22%238774e1%22%2C%22section_bg_color%22%3A%22%23212121%22%2C%22section_header_text_color%22%3A%22%238774e1%22%2C%22subtitle_text_color%22%3A%22%23aaaaaa%22%2C%22destructive_text_color%22%3A%22%23ff595a%22%7D',
 	'https://tgapp.matchain.io/#tgWebAppData=user%3D%257B%2522id%2522%253A7139245507%252C%2522first_name%2522%253A%2522Hehe%2522%252C%2522last_name%2522%253A%2522%2522%252C%2522language_code%2522%253A%2522vi%2522%252C%2522allows_write_to_pm%2522%253Atrue%257D%26chat_instance%3D2901698951088222756%26chat_type%3Dsender%26auth_date%3D1719928144%26hash%3D314768e714f24c9a0fcf1ecde0a9699b8c47169969edb95473f06744b4c9ffd7&tgWebAppVersion=7.4&tgWebAppPlatform=web&tgWebAppThemeParams=%7B%22bg_color%22%3A%22%23212121%22%2C%22button_color%22%3A%22%238774e1%22%2C%22button_text_color%22%3A%22%23ffffff%22%2C%22hint_color%22%3A%22%23aaaaaa%22%2C%22link_color%22%3A%22%238774e1%22%2C%22secondary_bg_color%22%3A%22%23181818%22%2C%22text_color%22%3A%22%23ffffff%22%2C%22header_bg_color%22%3A%22%23212121%22%2C%22accent_text_color%22%3A%22%238774e1%22%2C%22section_bg_color%22%3A%22%23212121%22%2C%22section_header_text_color%22%3A%22%238774e1%22%2C%22subtitle_text_color%22%3A%22%23aaaaaa%22%2C%22destructive_text_color%22%3A%22%23ff595a%22%7D',
 	'https://tgapp.matchain.io/?tgWebAppStartParam=1897573196ff95946e31e174ae7fe702#tgWebAppData=user%3D%257B%2522id%2522%253A7078027252%252C%2522first_name%2522%253A%2522Peter%2522%252C%2522last_name%2522%253A%2522Lee%2522%252C%2522language_code%2522%253A%2522en%2522%252C%2522allows_write_to_pm%2522%253Atrue%257D%26chat_instance%3D-5264370034553470256%26chat_type%3Dprivate%26start_param%3D1897573196ff95946e31e174ae7fe702%26auth_date%3D1719931814%26hash%3Dbd09565d1ffb96407472cb2747bec6eb5c2c41a542907a1a05f80ef842668379&tgWebAppVersion=7.4&tgWebAppPlatform=weba&tgWebAppThemeParams=%7B%22bg_color%22%3A%22%23212121%22%2C%22text_color%22%3A%22%23ffffff%22%2C%22hint_color%22%3A%22%23aaaaaa%22%2C%22link_color%22%3A%22%238774e1%22%2C%22button_color%22%3A%22%238774e1%22%2C%22button_text_color%22%3A%22%23ffffff%22%2C%22secondary_bg_color%22%3A%22%230f0f0f%22%2C%22header_bg_color%22%3A%22%23212121%22%2C%22accent_text_color%22%3A%22%238774e1%22%2C%22section_bg_color%22%3A%22%23212121%22%2C%22section_header_text_color%22%3A%22%23aaaaaa%22%2C%22subtitle_text_color%22%3A%22%23aaaaaa%22%2C%22destructive_text_color%22%3A%22%23e53935%22%7D',
 	'https://tgapp.matchain.io/?tgWebAppStartParam=1897573196ff95946e31e174ae7fe702#tgWebAppData=user%3D%257B%2522id%2522%253A6547839986%252C%2522first_name%2522%253A%2522Quan%2522%252C%2522last_name%2522%253A%2522Hoang%2522%252C%2522language_code%2522%253A%2522en%2522%252C%2522allows_write_to_pm%2522%253Atrue%257D%26chat_instance%3D2450768826572700959%26chat_type%3Dprivate%26start_param%3D1897573196ff95946e31e174ae7fe702%26auth_date%3D1719931889%26hash%3D8018b75b989830819f134afb070aaa991de219895d572f31e86d1edbc8d26980&tgWebAppVersion=7.4&tgWebAppPlatform=weba&tgWebAppThemeParams=%7B%22bg_color%22%3A%22%23212121%22%2C%22text_color%22%3A%22%23ffffff%22%2C%22hint_color%22%3A%22%23aaaaaa%22%2C%22link_color%22%3A%22%238774e1%22%2C%22button_color%22%3A%22%238774e1%22%2C%22button_text_color%22%3A%22%23ffffff%22%2C%22secondary_bg_color%22%3A%22%230f0f0f%22%2C%22header_bg_color%22%3A%22%23212121%22%2C%22accent_text_color%22%3A%22%238774e1%22%2C%22section_bg_color%22%3A%22%23212121%22%2C%22section_header_text_color%22%3A%22%23aaaaaa%22%2C%22subtitle_text_color%22%3A%22%23aaaaaa%22%2C%22destructive_text_color%22%3A%22%23e53935%22%7D'
@@ -51,6 +51,16 @@ function createAxiosInstance(proxy, token) {
 //end config
 
 // main
+async function http(url, headers, data = null) {
+	while (true) {
+		try {
+			const res = data ? await axios.post(url, data, { headers }) : await axios.get(url, { headers });
+			return res;
+		} catch (error) {
+			await new Promise(resolve => setTimeout(resolve, 1000));
+		}
+	}
+}
 async function encodeUrl(input) {
 	const params = new URLSearchParams(input);
 	const userEncoded = params.get('user');
@@ -173,8 +183,6 @@ async function getDailyBoost(stt, token, axios) {
 			}
 		const response = await axios.get('https://tgapp-api.matchain.io/api/tgapp/v1/daily/task/status', {headers});
 		if (response && response.status == 200) {
-			const responseData = response.data.data;
-			console.log(`[#] Account ${stt} | ${responseData[0].name}: ${responseData[0].level}, ${responseData[1].name}: ${responseData[1].level}`)
 			return response.data.data
 		}
 	} catch (e) {
@@ -300,16 +308,20 @@ async function claimGame(stt, token, axios, gameId) {
 		const headers = {
 				'Authorization': token,
 			}
-		const payload = {
-			'game_id': gameId,
-			'point': 50
-		}
-		const response = await axios.post('https://tgapp-api.matchain.io/api/tgapp/v1/game/play', payload, {headers});
-		console.log(response)
-		if (response && response.status == 200) {
-			console.log(`[#] Account ${stt} | Claim ${payload.point} point`)
-			return response.data.data
-		}
+		const point = Math.floor(Math.random() * (150 - 100 + 1)) + 100;
+		// const payload = {
+		// 	'game_id': gameId,
+		// 	'point': point
+		// }
+		const payload = JSON.stringify({ "game_id": gameId, "point": point });
+		// const response = await axios.post('https://tgapp-api.matchain.io/api/tgapp/v1/game/play', payload, {headers});
+		const url_claim = "https://tgapp-api.matchain.io/api/tgapp/v1/game/claim";
+        const response = await http(url_claim, headers, payload);
+		// console.log(response)
+		// if (response && response.status == 200) {
+		// 	console.log(`[#] Account ${stt} | Claim ${payload.point} point`)
+		return response
+		// }
 	} catch (e) {
 		console.error(`claimGame error: ${e}`);
 	}
@@ -351,22 +363,36 @@ async function main(stt, account, axios)
 			}
 			
 			const taskList = await getTaskList(stt, access_token, axios, uid)
-			const availableTask = taskList.filter(task => !task.complete)
-			for (const key in availableTask) {
-				await completeTask(stt, access_token, axios, availableTask[key].name, uid)
-				await claimTask(stt, access_token, axios, availableTask[key].name, uid)
+			const availableTasks = [];
+			['Tasks', 'Extra Tasks'].forEach(taskType => {
+				availableTasks.push(...taskList[taskType].filter(task => !task.complete));
+			});
+			for (const key in availableTasks) {
+				await completeTask(stt, access_token, axios, availableTasks[key].name, uid)
+				await claimTask(stt, access_token, axios, availableTasks[key].name, uid)
 			}
-
-			const gameData = await playGame(stt, access_token, axios)
-			if (gameData.game_id) {
-				await waitGame(stt, 31)
-				const gameCount = await claimGame(stt, access_token, axios, gameData.game_id)
-				while (gameCount) {
-					await playGame(stt, access_token,axios,uid)
-					await waitGame(stt, 30)
-					gameCount = await claimGame(stt, access_token, axios, gameData.game_id)
-				}
-			}
+			// while (true) {
+			// 	const gameData = await playGame(stt, access_token, axios)
+			// 	if (!gameData.game_count) {
+			// 		console.log(`[#] Account ${stt} | Đã hết vé`);
+			// 		break;
+			// 	} else console.log(`[#] Account ${stt} | Còn lại ${gameData.game_count} vé`);
+			// 	if (gameData.game_id) {
+			// 		await waitGame(stt, 30)
+			// 		const res = await claimGame(stt, access_token, axios, gameData.game_id)
+			// 		if (res.status !== 200) {
+			// 			this.log('Không thể bắt đầu trò chơi!', 'error');
+			// 			continue;
+			// 		}
+			
+			// 		this.log(`Hoàn thành trò chơi, kếm được: ${point}`, 'success');
+			// 	} 
+			// 	// while (gameCount) {
+			// 	// 	await playGame(stt, access_token,axios,uid)
+			// 	// 	await waitGame(stt, 30)
+			// 	// 	gameCount = await claimGame(stt, access_token, axios, gameData.game_id)
+			// 	// }
+			// }
 			console.log(cyan.bold(`[#] Account ${stt} | Done!`));
         }
 
@@ -408,7 +434,7 @@ async function runMulti() {
 			if (account) {
 					const axiosInstance = createAxiosInstance(proxy, account);
 					let stt = Number(globalIndex) + Number(1);
-					const maskedProxy = proxy.slice(0, -10) + '**********';
+					const maskedProxy = proxy.slice(0, -10);
 					console.log(`[#] Account ${stt} | Proxy: ${maskedProxy}`);
 					console.log(`[#] Account ${stt} | Check IP...`);
 					let checkIp = await checkIP(axiosInstance);
