@@ -51,16 +51,6 @@ function createAxiosInstance(proxy, token) {
 //end config
 
 // main
-async function http(url, headers, data = null) {
-	while (true) {
-		try {
-			const res = data ? await axios.post(url, data, { headers }) : await axios.get(url, { headers });
-			return res;
-		} catch (error) {
-			await new Promise(resolve => setTimeout(resolve, 1000));
-		}
-	}
-}
 async function encodeUrl(input) {
 	const params = new URLSearchParams(input);
 	const userEncoded = params.get('user');
@@ -183,6 +173,8 @@ async function getDailyBoost(stt, token, axios) {
 			}
 		const response = await axios.get('https://tgapp-api.matchain.io/api/tgapp/v1/daily/task/status', {headers});
 		if (response && response.status == 200) {
+			const responseData = response.data.data;
+			console.log(`[#] Account ${stt} | ${responseData[0].name}: ${responseData[0].level}, ${responseData[1].name}: ${responseData[1].level}`)
 			return response.data.data
 		}
 	} catch (e) {
@@ -308,20 +300,16 @@ async function claimGame(stt, token, axios, gameId) {
 		const headers = {
 				'Authorization': token,
 			}
-		const point = Math.floor(Math.random() * (150 - 100 + 1)) + 100;
-		// const payload = {
-		// 	'game_id': gameId,
-		// 	'point': point
-		// }
-		const payload = JSON.stringify({ "game_id": gameId, "point": point });
-		// const response = await axios.post('https://tgapp-api.matchain.io/api/tgapp/v1/game/play', payload, {headers});
-		const url_claim = "https://tgapp-api.matchain.io/api/tgapp/v1/game/claim";
-        const response = await http(url_claim, headers, payload);
-		// console.log(response)
-		// if (response && response.status == 200) {
-		// 	console.log(`[#] Account ${stt} | Claim ${payload.point} point`)
-		return response
-		// }
+		const payload = {
+			'game_id': gameId,
+			'point': 50
+		}
+		const response = await axios.post('https://tgapp-api.matchain.io/api/tgapp/v1/game/play', payload, {headers});
+		console.log(response)
+		if (response && response.status == 200) {
+			console.log(`[#] Account ${stt} | Claim ${payload.point} point`)
+			return response.data.data
+		}
 	} catch (e) {
 		console.error(`claimGame error: ${e}`);
 	}
@@ -363,36 +351,22 @@ async function main(stt, account, axios)
 			}
 			
 			const taskList = await getTaskList(stt, access_token, axios, uid)
-			const availableTasks = [];
-			['Tasks', 'Extra Tasks'].forEach(taskType => {
-				availableTasks.push(...taskList[taskType].filter(task => !task.complete));
-			});
-			for (const key in availableTasks) {
-				await completeTask(stt, access_token, axios, availableTasks[key].name, uid)
-				await claimTask(stt, access_token, axios, availableTasks[key].name, uid)
+			const availableTask = taskList.filter(task => !task.complete)
+			for (const key in availableTask) {
+				await completeTask(stt, access_token, axios, availableTask[key].name, uid)
+				await claimTask(stt, access_token, axios, availableTask[key].name, uid)
 			}
-			// while (true) {
-			// 	const gameData = await playGame(stt, access_token, axios)
-			// 	if (!gameData.game_count) {
-			// 		console.log(`[#] Account ${stt} | Đã hết vé`);
-			// 		break;
-			// 	} else console.log(`[#] Account ${stt} | Còn lại ${gameData.game_count} vé`);
-			// 	if (gameData.game_id) {
-			// 		await waitGame(stt, 30)
-			// 		const res = await claimGame(stt, access_token, axios, gameData.game_id)
-			// 		if (res.status !== 200) {
-			// 			this.log('Không thể bắt đầu trò chơi!', 'error');
-			// 			continue;
-			// 		}
-			
-			// 		this.log(`Hoàn thành trò chơi, kếm được: ${point}`, 'success');
-			// 	} 
-			// 	// while (gameCount) {
-			// 	// 	await playGame(stt, access_token,axios,uid)
-			// 	// 	await waitGame(stt, 30)
-			// 	// 	gameCount = await claimGame(stt, access_token, axios, gameData.game_id)
-			// 	// }
-			// }
+
+			const gameData = await playGame(stt, access_token, axios)
+			if (gameData.game_id) {
+				await waitGame(stt, 31)
+				const gameCount = await claimGame(stt, access_token, axios, gameData.game_id)
+				while (gameCount) {
+					await playGame(stt, access_token,axios,uid)
+					await waitGame(stt, 30)
+					gameCount = await claimGame(stt, access_token, axios, gameData.game_id)
+				}
+			}
 			console.log(cyan.bold(`[#] Account ${stt} | Done!`));
         }
 
@@ -434,7 +408,7 @@ async function runMulti() {
 			if (account) {
 					const axiosInstance = createAxiosInstance(proxy, account);
 					let stt = Number(globalIndex) + Number(1);
-					const maskedProxy = proxy.slice(0, -10);
+					const maskedProxy = proxy.slice(0, -10) + '**********';
 					console.log(`[#] Account ${stt} | Proxy: ${maskedProxy}`);
 					console.log(`[#] Account ${stt} | Check IP...`);
 					let checkIp = await checkIP(axiosInstance);
