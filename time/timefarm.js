@@ -16,6 +16,24 @@ let auto_task = true; // auto task
 
 let auto_upgrade_clock = true; //auto upgrade clock
 let max_level_clock = 6; // max level clock  (max = 3)
+
+let auto_stake = true 
+let stake_type = "1"
+let stake_during = "3"
+
+switch (stake_type) {
+	case "1":
+		stake_during = "3"
+		break;
+	case "2":
+		stake_during = "15"
+		break;
+	case "3":
+		stake_during = "45"
+		break;
+	default: 
+		console.log("Hãy nhập stake_type");
+}
 // 
 
 function createAxiosInstance(proxy) {
@@ -42,28 +60,6 @@ function createAxiosInstance(proxy) {
 //end config
 
 // main
-
-async function login(stt, userData, axios){
-	try{
-		const headers = {};
-
-		const payload = userData;
-
-		const response = await axios.post('https://tg-bot-tap.laborx.io/api/v1/auth/validate-init', payload, { headers: headers });
-
-		if(response && response.status == 200){
-				console.log(green.bold(`[*] Account ${stt} | Get token success`));
-				return {
-					access_token: response.data.token,
-					data: response.data.info
-				};
-		}
-
-	}catch(e){
-		console.log(`[*] Account ${stt} | login err: ${e}`);
-	}
-}
-
 async function getFarmInfo(stt, token, axios, retryDelay = 5000, maxRetries = 5) {
     let retries = 0;
     const headers = {
@@ -222,7 +218,59 @@ async function claimTask(stt, token, axios, idTask) {
 		console.log(`[e] Account ${stt} | claimTask err: ${e}`);
 	}
 }
+async function getStake(stt, token, axios) {
+	try {
+		const headers = {
+			Authorization: `Bearer ${token}`,
+		};
 
+		const response = await axios.get(`https://tg-bot-tap.laborx.io/api/v1/staking/active`, { headers: headers });
+		if (response && response.status == 200) {
+			return response.data.stakes;
+		}
+	} catch (e) {
+		console.log(`[e] Account ${stt} | getStake err: ${e}`);
+	}
+}
+async function staking(stt, token, axios, stakeBalance) {
+	try {
+		const headers = {
+			Authorization: `Bearer ${token}`,
+		};
+
+		const payload = {
+			amount: stakeBalance,
+			optionId: stake_type
+		};
+
+		const response = await axios.post(`https://tg-bot-tap.laborx.io/api/v1/staking`, payload, { headers: headers });
+
+		if (response && response.status == 200) {
+			console.log(yellow.bold(`[#] Account ${stt} | Stake ${stakeBalance} point ${stake_during} days`));
+		}
+	} catch (e) {
+		console.log(`[e] Account ${stt} | staking err: ${e}`);
+	}
+}
+async function claimStake(stt, token, axios, stakeId) {
+	try {
+		const headers = {
+			Authorization: `Bearer ${token}`,
+		};
+
+		const payload = {
+			id: stakeId
+		};
+
+		const response = await axios.post(`https://tg-bot-tap.laborx.io/api/v1/staking/claim`, payload, { headers: headers });
+
+		if (response && response.status == 200) {
+			console.log(blue.bold(`[#] Account ${stt} | Claim stake successful, Balance: ${response.data.balance}`));
+		}
+	} catch (e) {
+		console.log(`[e] Account ${stt} | claimStake err: ${e}`);
+	}
+}
 async function levelUpgrade(stt, token, axios) {
 	try {
 		const headers = {
@@ -244,16 +292,14 @@ async function levelUpgrade(stt, token, axios) {
 async function main(stt, account, axios)
 {
     try{
-        let urlData = querystring.unescape(account).split('tgWebAppData=')[1].split('&tgWebAppVersion')[0];
-        
+		const access_token = account;
 		console.log(cyan.bold(`[#] Account ${stt} | Login...`));
 		await sleep(5);
-        let {access_token, data} = await login(stt, urlData, axios);
         if(access_token){
 					console.log(cyan.bold(`[#] Account ${stt} | Get Farm Info...`));
 					await sleep(5);
+					let farmInfo = await getFarmInfo(stt, access_token, axios);
 					if(auto_farm){
-						let farmInfo = await getFarmInfo(stt, access_token, axios);
 						console.log(`[#] Account ${stt} | Balance: ${farmInfo.balance}`)
 						if(farmInfo){
 								if(farmInfo.activeFarmingStartedAt == null){
@@ -356,21 +402,36 @@ async function main(stt, account, axios)
 							}
 					}
 
-					if(auto_upgrade_clock){
-						let { level } = data;
-
-						if(level < max_level_clock && level != 4){
-							for (let i = level; i < max_level_clock; i++) {
-								console.log(cyan.bold(`[#] Account ${stt} | Upgrade Clock...`));
-                await sleep(randomInt(1,4));
-                let upClock = await levelUpgrade(stt, access_token, axios);
-                if(upClock) {
-                  console.log(green.bold(`[#] Account ${stt} | Upgrade Clock Lvl: ${level + i} Success!`));
-									await sleep(randomInt(2,5));
-                }
+					if (auto_stake) {
+						let stakeData = await getStake(stt, access_token, axios)
+						const now = new Date()
+						if (stakeData) {
+							for (const stake in stakeData) {
+								if (now >= stake.finishAt) {
+									stakeData = await claimStake(stt, access_token, axios, stake.id)
+								}
 							}
 						}
+						if (Object.keys(stakeData).length < 3 && farmInfo.balance) {
+							await staking(stt, access_token, axios, farmInfo.balance)
+						}
 					}
+
+				// 	if(auto_upgrade_clock){
+				// 		let { level } = data;
+
+				// 		if(level < max_level_clock && level != 4){
+				// 			for (let i = level; i < max_level_clock; i++) {
+				// 				console.log(cyan.bold(`[#] Account ${stt} | Upgrade Clock...`));
+                // await sleep(randomInt(1,4));
+                // let upClock = await levelUpgrade(stt, access_token, axios);
+                // if(upClock) {
+                //   console.log(green.bold(`[#] Account ${stt} | Upgrade Clock Lvl: ${level + i} Success!`));
+				// 					await sleep(randomInt(2,5));
+                // }
+				// 			}
+				// 		}
+				// 	}
 
 					console.log(cyan.bold(`[#] Account ${stt} | Done!`));
       }
@@ -394,7 +455,6 @@ async function runMulti() {
     if(numberThread > countPrx) {
 		numberThread = countPrx;
     }
-	// let prx = await cPrx(); if(!prx) return;
     const accountChunks = createChunks(accounts, numberThread);
 	
     for (const chunk of accountChunks) {
