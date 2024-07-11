@@ -300,18 +300,21 @@ async function claimGame(stt, token, axios, gameId) {
 		const headers = {
 				'Authorization': token,
 			}
+		const point = Math.floor(Math.random() * (150 - 100 + 1)) + 100;
 		const payload = {
 			'game_id': gameId,
-			'point': 50
+			'point': point
 		}
 		const response = await axios.post('https://tgapp-api.matchain.io/api/tgapp/v1/game/play', payload, {headers});
-		console.log(response)
 		if (response && response.status == 200) {
 			console.log(`[#] Account ${stt} | Claim ${payload.point} point`)
-			return response.data.data
 		}
+		return response
 	} catch (e) {
-		console.error(`claimGame error: ${e}`);
+		if (e !== 'AxiosError: Request failed with status code 404'){
+			console.error(`claimGame error: ${e}`);
+		}
+		return e.response
 	}
 }
 async function waitGame(stt, seconds) {
@@ -351,20 +354,25 @@ async function main(stt, account, axios)
 			}
 			
 			const taskList = await getTaskList(stt, access_token, axios, uid)
-			const availableTask = taskList.filter(task => !task.complete)
-			for (const key in availableTask) {
-				await completeTask(stt, access_token, axios, availableTask[key].name, uid)
-				await claimTask(stt, access_token, axios, availableTask[key].name, uid)
+			const availableTasks = [];
+			['Tasks', 'Extra Tasks'].forEach(taskType => {
+				availableTasks.push(...taskList[taskType].filter(task => !task.complete));
+			});
+			for (const key in availableTasks) {
+				await completeTask(stt, access_token, axios, availableTasks[key].name, uid)
+				await claimTask(stt, access_token, axios, availableTasks[key].name, uid)
 			}
-
-			const gameData = await playGame(stt, access_token, axios)
-			if (gameData.game_id) {
-				await waitGame(stt, 31)
-				const gameCount = await claimGame(stt, access_token, axios, gameData.game_id)
-				while (gameCount) {
-					await playGame(stt, access_token,axios,uid)
-					await waitGame(stt, 30)
-					gameCount = await claimGame(stt, access_token, axios, gameData.game_id)
+			while (true) {
+				const gameData = await playGame(stt, access_token, axios)
+				if (!gameData.game_count) {
+					console.log(green.bold(`[#] Account ${stt} | Hết vé`));
+					break;
+				} else console.log(yellow.bold(`[#] Account ${stt} | Còn ${gameData.game_count} vé`));
+				await waitGame(stt, 30)
+				const res = await claimFarm(stt, access_token, axios, gameData.game_id)
+				if (res.status!=200) {
+					console.log(`[#] Account ${stt} | Lỗi chơi game: ${res.data.message}`);
+					continue;
 				}
 			}
 			console.log(cyan.bold(`[#] Account ${stt} | Done!`));
