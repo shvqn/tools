@@ -13,7 +13,7 @@ const accounts = [
 ];
 const proxies = ['203.175.96.54:23270:Proxy910:Proxy910'];
 
-let timeRerun = 20; //phút time nghỉ mỗi lượt chạy
+let timeRerun = 8*60; //phút time nghỉ mỗi lượt chạy
 let numberThread = 1; // số luồng chạy /1 lần 
 
 function formatTimeToUTC7(date) {
