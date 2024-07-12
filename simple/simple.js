@@ -57,6 +57,18 @@ function formatTimeToUTC7(date) {
 
     return `${hours}:${minutes}:${seconds}`;
 }
+function spinType(type) {
+    switch (type){
+        case "0":
+            return "TAP LIMIT"
+        case "1":
+            return "COINS PER HOUR"
+        case "2":
+            return "TAP SIZE"
+        case "3":
+            return "COINS"
+    }
+}
 
 const processQuery = async (query_id, proxy, stt) => {
     await checkProxyIP(proxy);
@@ -180,6 +192,7 @@ const processQuery = async (query_id, proxy, stt) => {
         }
     };
 
+
     const spin = async (stt, spinCount) => {
         const spinPayload = {
             "amount": 0,
@@ -195,8 +208,8 @@ const processQuery = async (query_id, proxy, stt) => {
         };
 
         try {
-            await axios(spinConfig);
-            console.log(`[#] Account ${stt} | Spin thành công, SpinCount: ${spinCount}`);
+            const spinData = await axios(spinConfig);
+            console.log(`[#] Account ${stt} | Spin thành công ${spinData.data.amount} ${spinType(spinData.data.spinType)}`);
             if (spinCount > 0) {
                 spin(stt, spinCount - 1)
             }
