@@ -129,7 +129,7 @@ async function main(stt, axios) {
 			const farmFinishAt = new Date(uData.lastFarming.timestamp + 6*3600*1000)
 			if (farmFinishAt && now >= farmFinishAt) {
                 await claimFarm(stt, axios);
-                await startFarm(st, axios);
+                await startFarm(stt, axios);
         } else {
             console.log(`[#] Account ${stt} | Có thể claim lúc ${formatTimeToUTC7(farmFinishAt)}`)
         }
