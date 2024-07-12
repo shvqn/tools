@@ -128,7 +128,7 @@ const processQuery = async (query_id, proxy, stt) => {
             console.log(`[#] Account ${stt} | AvailableTaps: ${availableTaps}, Balance: ${balance}`);
             if (availableTaps > 0) {
                 sleep()
-                await claimTaps(availableTaps - 21, tapSize, balance + 21, stt);
+                await claimTaps(availableTaps - tapSize, tapSize, balance + tapSize, stt);
             }
         } catch (error) {
             console.error('Lỗi khi gửi yêu cầu claimTaps:', error);
@@ -266,7 +266,7 @@ const processQuery = async (query_id, proxy, stt) => {
     try {
         const response = await axios(profileConfig);
         const {balance, availableTaps, tapSize, spinCount, refBalance, activeFarmingSeconds} = response.data.data;
-        console.log(`[#] Account ${stt} | Balance: ${balance}, AvailableTaps: ${availableTaps}, Spin: ${spinCount}`);
+        console.log(`[#] Account ${stt} | Balance: ${balance}, AvailableTaps: ${availableTaps}, Spin: ${spinCount}, TapSize: ${tapSize}`);
         const now = new Date()
         const nowInMs = now.getTime()
         const farmStartedAtInMs = nowInMs - activeFarmingSeconds*1000
@@ -279,7 +279,7 @@ const processQuery = async (query_id, proxy, stt) => {
             } else console.log(`[#] Account ${stt} | Có thể claim farm lúc ${formatTimeToUTC7(farmFinishAt)} `)
         } else await startFarm(stt)
 
-        if (availableTaps > 0) {
+        if (availableTaps > tapSize) {
             await claimTaps(availableTaps, tapSize, balance, stt);
         }
         if (refBalance > 0) {
