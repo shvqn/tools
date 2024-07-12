@@ -80,13 +80,14 @@ async function runMulti() {
                         const rsObject = response.data;
                         TOKEN = rsObject.data.token.token;
                         NAME = rsObject.data.user.display_name;
+                        await getAssets();
                     } catch (error) {
                         console.log("Lỗi Token!!!", error);
                         throw error;
                     }
                 }
                 
-                function getAssets() {
+                async function getAssets() {
                     const updatedData = JSON.stringify({
                         "token": TOKEN
                     });
@@ -119,16 +120,18 @@ async function runMulti() {
                     DATA.egg_uid = eggsID;
                     axios.request(updatedConfig)
                         .then((response) => {
-                            let icon = (response.data['data'].a_type ==='egg') ? "🥚" : (response.data['data'].a_type ==='diamond') ? "💎" : "💲"
-                            console.log(`[#] Account ${stt} | Đã nhặt ${response.data['data'].amount} ${icon}`);
-                            getAssets()
+                            const type = response.data['data'].a_type;
+                            if (type) {
+                                let icon = (type ==='egg') ? "🥚" : (type ==='diamond') ? "💎" : "💲"
+                                console.log(`[#] Account ${stt} | Đã nhặt ${response.data['data'].amount} ${icon}`);
+                            }
                         })
                         .catch((error) => {
                             console.log("Lỗi khi nhặt trứng. Bỏ qua"+error);
                         });
                 
                 }
-                function getEggs() {
+                async function getEggs() {
                     const updatedData = JSON.stringify({
                         "token": TOKEN
                     });
@@ -156,12 +159,7 @@ async function runMulti() {
                 async function startCollecting() {
                     try {
                         await getToken();
-                        getEggs();
-                        setInterval(async () => {
-                            await getToken();
-                            getEggs();
-                        }, 30000);
-                        
+                        await getEggs();
                     } catch (error) {
                         console.error('Có lỗi khi khởi động!!!', error);
                     }
