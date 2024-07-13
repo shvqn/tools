@@ -59,13 +59,13 @@ function formatTimeToUTC7(date) {
 }
 function spinType(type) {
     switch (type){
-        case "0":
+        case 0:
             return "TAP LIMIT"
-        case "1":
+        case 1:
             return "COINS PER HOUR"
-        case "2":
+        case 2:
             return "TAP SIZE"
-        case "3":
+        case 3:
             return "COINS"
     }
 }
@@ -126,7 +126,7 @@ const processQuery = async (query_id, proxy, stt) => {
         try {
             await axios(claimTapsConfig);
             console.log(`[#] Account ${stt} | AvailableTaps: ${availableTaps}, Balance: ${balance}`);
-            if (availableTaps > 0) {
+            if (availableTaps > tapSize) {
                 sleep()
                 await claimTaps(availableTaps - tapSize, tapSize, balance + tapSize, stt);
             }
@@ -209,7 +209,7 @@ const processQuery = async (query_id, proxy, stt) => {
 
         try {
             const spinData = await axios(spinConfig);
-            console.log(`[#] Account ${stt} | Spin thành công ${spinData.data.amount} ${spinType(spinData.data.spinType)}`);
+            console.log(`[#] Account ${stt} | Spin thành công ${spinData.data.data.amount} ${spinType(spinData.data.data.spinType)}`);
             if (spinCount > 0) {
                 spin(stt, spinCount - 1)
             }
