@@ -1,7 +1,7 @@
 @echo on
 cd coinegg
 
-node coinegg.js
+node egg.js
 
 pause
 
