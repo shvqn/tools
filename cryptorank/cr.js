@@ -71,7 +71,7 @@ async function claimFarm(stt, axios)
 
 		const response = await axios.post('https://api.cryptorank.io/v0/tma/account/end-farming', payload, { headers: headers });
 		if (response && response.status == 201) {
-			console.log(`[#] Account ${stt} | Claim farm successful, Balance: ${response.data.crPoints
+			console.log(`[#] Account ${stt} | Claim farm successful, Balance: ${response.data.balance
 			}`);
 		}
 	}catch(e){
@@ -124,9 +124,9 @@ async function main(stt, axios) {
 		await sleep(5);
 		let uData = await getUserData(stt, axios);
 		if(uData){
-			console.log(blue.bold(`[#] Account ${stt} | Balance: ${uData.crPoints}`));
+			console.log(blue.bold(`[#] Account ${stt} | Balance: ${uData.balance}`));
 			const now = new Date()
-			const farmFinishAt = new Date(uData.lastFarming.timestamp + 6*3600*1000)
+			const farmFinishAt = new Date(uData.farming.timestamp + 6*3600*1000)
 			if (farmFinishAt && now >= farmFinishAt) {
                 await claimFarm(stt, axios);
                 await startFarm(stt, axios);
