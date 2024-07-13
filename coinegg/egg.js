@@ -140,8 +140,11 @@ async function getRefs(stt, axios, token)
 		if (response && response.status == 200) {
 			const refList = response.data.data
 			const availableRef = refList.filter(item => item.flag === 0);
-			for (const key in availableRef) {
-				await collectRefs(stt, axios, token, key.id)
+			if (availableRef) {
+				for (const key of availableRef) {
+		    		const refAvai = await collectRefs(stt, axios, token, key.id)
+					if (!refAvai) break;
+				}
 			}
         }
 	}catch(e){
@@ -159,8 +162,12 @@ async function collectRefs(stt, axios, token, refID)
         };
 
 		const response = await axios.post('https://egg-api.hivehubs.app/api/invite/reward', payload, { headers: headers });
-		if (response && response.status == 200) {
+		if (response && response.data.code == 0) {
 			console.log(`[#] Account ${stt} | Claim 2 💎 from ref`);
+			return true
+		} else {
+			console.log(`[#] Account ${stt} | ${response.data.message}`);
+			return false
 		}
 	}catch(e){
 		console.log(`[*] Account ${stt} | collectEggs err: ${e}`);
