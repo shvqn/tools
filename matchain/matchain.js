@@ -369,7 +369,7 @@ async function main(stt, account, axios)
 					break;
 				} else console.log(yellow.bold(`[#] Account ${stt} | Còn ${gameData.game_count} vé`));
 				await waitGame(stt, 30)
-				const res = await claimFarm(stt, access_token, axios, gameData.game_id)
+				const res = await claimGame(stt, access_token, axios, gameData.game_id)
 				if (res.status!=200) {
 					console.log(`[#] Account ${stt} | Lỗi chơi game: ${res.data.message}`);
 					continue;
