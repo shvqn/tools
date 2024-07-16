@@ -356,8 +356,10 @@ async function main(stt, account, axios)
 			const taskList = await getTaskList(stt, access_token, axios, uid)
 			const availableTasks = [];
 			['Tasks', 'Extra Tasks'].forEach(taskType => {
-				availableTasks.push(...taskList[taskType].filter(task => !task.complete));
-			});
+				if (taskList[taskType]) {
+				  availableTasks.push(...taskList[taskType].filter(task => !task.complete));
+				}
+			  });
 			for (const key in availableTasks) {
 				await completeTask(stt, access_token, axios, availableTasks[key].name, uid)
 				await claimTask(stt, access_token, axios, availableTasks[key].name, uid)
