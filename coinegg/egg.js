@@ -125,27 +125,20 @@ async function collectEggs(stt, axios, token, eggID)
 		console.log(`[*] Account ${stt} | collectEggs err: ${e}`);
 	}
 }
-async function getRefs(stt, axios, token)
+async function getRefs(stt, axios, token, startId)
 {
 	try{
 		const headers = {};
 
 		const payload = {
             "token": token,
-			"start_id": "",
+			"start_id": startId,
 			size: 20
         };
 
 		const response = await axios.post('https://egg-api.hivehubs.app/api/invite/list', payload, { headers: headers });
 		if (response && response.status == 200) {
-			const refList = response.data.data
-			const availableRef = refList.filter(item => item.flag === 0);
-			if (availableRef) {
-				for (const key of availableRef) {
-		    		const refAvai = await collectRefs(stt, axios, token, key.id)
-					if (!refAvai) break;
-				}
-			}
+			return response.data.data
         }
 	}catch(e){
 		console.log(`[*] Account ${stt} | getRefs err: ${e}`);
@@ -187,8 +180,21 @@ async function main(stt, axios, account) {
             const usdt = assets['usdt'] ? assets['usdt'].amount : 0;
             console.log(`[#] Account ${stt} | Balance: ${diamond} 💎, ${egg} 🥚, ${usdt} 💲`)
 			await getEggs(stt, axios, token)
-			await getRefs(stt, axios, token)
+			let refList = []
+			let startId = ""
+			for (let i = 0; i<3; i++) {
+				const refs = await getRefs(stt, axios, token, startId)
+				startId = refs[19].id
+				refList.push(...refs)
+			}
+			const availableRef = refList.filter(item => item.flag === 0);
 			
+			if (availableRef) {
+				for (const key of availableRef) {
+		    		const refAvai = await collectRefs(stt, axios, token, key.id)
+					if (!refAvai) break;
+				}
+			}
 		}
 		console.log(cyan.bold(`[#] Account ${stt} | Done!`));
 
