@@ -1,0 +1,21 @@
+{
+  "name": "taptether",
+  "version": "1.0.0",
+  "main": "tether.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.7.2",
+    "color": "^4.2.3",
+    "colors": "^1.4.0",
+    "fs": "^0.0.1-security",
+    "https-proxy-agent": "^7.0.5",
+    "os": "^0.1.2",
+    "tunnel": "^0.0.6",
+    "yargs": "^17.7.2"
+  }
+}
