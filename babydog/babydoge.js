@@ -49,6 +49,7 @@ class Babydoge {
                 return res;
             } catch (error) {
                 attempts++;
+                console.log(error.response.data);
                 this.log(`Lỗi kết nối (Lần thử ${attempts}/${maxAttempts}): ${error.message}`.red);
                 if (attempts < maxAttempts) {
                     await this.sleep(5000);
