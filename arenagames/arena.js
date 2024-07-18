@@ -166,7 +166,7 @@ async function startGame(stt, token, urlData, axios) {
 	}
 	catch (e) {
 		if (e.response) {
-			console.log(`[#] Account ${stt} | startGame err: ${e}`);
+			console.log(`[#] Account ${stt} | ${e.response.data.message}`);
 			return true
 		} else return false
 	}
