@@ -40,14 +40,13 @@ function createAxiosInstance(proxy) {
 
 // main
 
-async function profile(stt, token, axios) {
+async function profile(stt, token, urlData, axios) {
 	try {
 		const headers = {
-			'at': token,
+			'At': token,
+			Tg: urlData
 		};
 
-		const payload = {
-		};
 		const response = await axios.get(`https://bot.arenavs.com/v1/profile`, { headers });
 
 		if (response && response.status == 200) {
@@ -59,29 +58,11 @@ async function profile(stt, token, axios) {
 	}
 }
 
-async function getArena(stt, token, axios, url) {
+async function farmCoin(stt, token, urlData, axios) {
 	try {
 		const headers = {
 			'at': token,
-		};
-
-		const payload = {
-		};
-		const response = await axios.get(url, { headers });
-
-		if (response && response.status == 200) {
-			return response.data.data;
-		}
-
-	} catch (e) {
-		console.log(`[*] Account ${stt} | getArena: ${e}`);
-	}
-}
-
-async function farmCoin(stt, token, axios) {
-	try {
-		const headers = {
-			'at': token,
+			Tg: urlData
 		}
 
 		const payload = {}
@@ -94,10 +75,11 @@ async function farmCoin(stt, token, axios) {
 		console.log(`[*] Account ${stt} | farmCoin: ${e}`);
 	}
 }
-async function claimRef(stt, token, axios) {
+async function claimRef(stt, token, urlData, axios) {
 	try {
 		const headers = {
 			'At': token,
+			Tg: urlData
 		}
 		const payload = {}
 		const response = await axios.post('https://bot.arenavs.com/v1/profile/get-ref-coin', payload, { headers });
@@ -109,10 +91,11 @@ async function claimRef(stt, token, axios) {
 	}
 }
 
-async function getTasks(stt, token, axios) {
+async function getTasks(stt, token, urlData, axios) {
 	try {
 		const headers = {
 			'at': token,
+			Tg: urlData
 		};
 
 		const payload = {
@@ -128,10 +111,11 @@ async function getTasks(stt, token, axios) {
 	}
 }
 
-async function submitTask(stt, token, axios, idTask) {
+async function submitTask(stt, token, urlData, axios, idTask) {
 	try {
 		const headers = {
 			'at': token,
+			Tg: urlData
 		}
 		const payload = {}
 		const response = await axios.post(`https://bot.arenavs.com/v1/profile/tasks/${idTask}`, payload, { headers });
@@ -142,10 +126,11 @@ async function submitTask(stt, token, axios, idTask) {
 		console.log(`[*] Account ${stt} | submitTask: ${e}`);
 	}
 }
-async function claimTask(stt, token, axios, idTask) {
+async function claimTask(stt, token, urlData, axios, idTask) {
 	try {
 		const headers = {
 			'at': token,
+			Tg: urlData
 		}
 		const payload = {}
 		const response = await axios.post(`https://bot.arenavs.com/v1/profile/tasks/${idTask}/claim`, payload, { headers });
@@ -156,10 +141,11 @@ async function claimTask(stt, token, axios, idTask) {
 		console.log(`[*] Account ${stt} | claimTask error: ${e}`);
 	}
 }
-async function getAttemptsLeft(stt, token, axios) {
+async function getAttemptsLeft(stt, token, urlData, axios) {
 	try {
 		const headers = {
 			'at': token,
+			Tg: urlData
 		}
 		const response = await axios.get(`https://bot.arenavs.com/v1/game/attempts-left`, { headers });
 		if (response && response.status == 200) {
@@ -169,17 +155,18 @@ async function getAttemptsLeft(stt, token, axios) {
 		console.log(`[*] Account ${stt} | getAttemptsLeft error: ${e}`);
 	}
 }
-async function startGame(stt, token, axios) {
+async function startGame(stt, token, urlData, axios) {
 	try {
 		const headers = {
 			'at': token,
+			Tg: urlData
 		}
 		const payload = {}
 		await axios.post("https://bot.arenavs.com/v1/game/start", payload, { headers });
 	}
 	catch (e) {
 		if (e.response) {
-			console.log(`[#] Account ${stt} | ${e.response.data.message}`);
+			console.log(`[#] Account ${stt} | startGame err: ${e}`);
 			return true
 		} else return false
 	}
@@ -191,10 +178,11 @@ async function waitGame(stt, seconds) {
 		await new Promise(resolve => setTimeout(resolve, 1000));
 	}
 }
-async function stopGame(stt, token, axios, gameData) {
+async function stopGame(stt, token, urlData, axios, gameData) {
 	try {
 		const headers = {
 			'at': token,
+			Tg: urlData
 		}
 		const payload = {
 			...gameData,
@@ -218,7 +206,7 @@ async function main(stt, account, axios)
 		let token = userData.id;
 		console.log(cyan.bold(`[#] Account ${stt} | Auth...`));
 		await sleep(5);
-        let infoAcc = await profile(stt, token, axios);
+        let infoAcc = await profile(stt, token, urlData, axios);
 
         if(infoAcc){
 			let {username, balance, storage, farmEnd} = infoAcc;
@@ -229,7 +217,7 @@ async function main(stt, account, axios)
 				const currentTime = Date.now();
 				if (currentTime >= farmEnd) {
 					await sleep(randomInt(1,5));
-					let farmRs = await farmCoin(stt, token, axios);
+					let farmRs = await farmCoin(stt, token, urlData, axios);
 					if (farmRs){
 						console.log(green.bold(`[*] Account ${stt} | Farming Success!, XP(+): ${formatNum(storage.$numberDecimal)}`));
 					}else{
@@ -241,7 +229,7 @@ async function main(stt, account, axios)
 			if(auto_farm_ref){
 				console.log(cyan.bold(`[*] Account ${stt} | Claim Ref...`));
 				await sleep(randomInt(1,5));
-				let clRef = await claimRef(stt, token, axios);
+				let clRef = await claimRef(stt, token, urlData, axios);
 				if(clRef)
 				{
 					console.log(green.bold(`[*] Account ${stt} | Claim Ref Success!`));
@@ -253,7 +241,7 @@ async function main(stt, account, axios)
 				let tasksAll;
 				console.log(cyan.bold(`[*] Account ${stt} | Auto Task...`));
 				await sleep(randomInt(1,5));
-				tasksAll = await getTasks(stt, token, axios);
+				tasksAll = await getTasks(stt, token, urlData, axios);
 				if(tasksAll){
 					let { docs } = tasksAll;
 					if(docs.length > 0){
@@ -264,7 +252,7 @@ async function main(stt, account, axios)
 								let titleTask = task.title;
 								let xpTask = task.bonus.$numberDecimal;
 								console.log(yellow.bold(`[*] Account ${stt} | Start Task: ${titleTask}, XP: ${formatNum(xpTask)}`));
-								let sTask = await submitTask(stt, token, axios, idTask);
+								let sTask = await submitTask(stt, token, urlData, axios, idTask);
 								if(sTask){
 									let sl = randomInt(15,20);
 									console.log(cyan.bold(`[*] Account ${stt} | Submit Task: ${titleTask}, XP: ${formatNum(xpTask)}, Sleep: ${sl}s`));
@@ -277,7 +265,7 @@ async function main(stt, account, axios)
 				
 				//check 2
 				await sleep(randomInt(2,5));
-				tasksAll = await getTasks(stt, token, axios);
+				tasksAll = await getTasks(stt, token, urlData, axios);
 				if(tasksAll){
 					let { docs } = tasksAll;
 					if(docs.length > 0){
@@ -288,7 +276,7 @@ async function main(stt, account, axios)
 								let titleTask = task.title;
 								let xpTask = task.bonus.$numberDecimal;
 								console.log(yellow.bold(`[*] Account ${stt} | Claim Task: ${titleTask}, XP: ${formatNum(xpTask)}`));
-								let cTask = await claimTask(stt, token, axios, idTask);
+								let cTask = await claimTask(stt, token, urlData, axios, idTask);
 								if(cTask){
 									console.log(green.bold(`[*] Account ${stt} | Claimed Task: ${titleTask}, XP(+): ${formatNum(xpTask)}`));
 									await sleep(randomInt(3,5));
@@ -298,17 +286,17 @@ async function main(stt, account, axios)
 					}
 				}
 			}
-			let attemptsLeft = await getAttemptsLeft(stt, token, axios)
+			let attemptsLeft = await getAttemptsLeft(stt, token, urlData, axios)
 			while (attemptsLeft) {
 				const gameData = {
 					xp: Math.floor(Math.random() * (1000 - 500 + 1)) + 500,
 					height: Math.floor(Math.random() * (35 - 20 + 1)) + 20,
 					somersault: Math.floor(Math.random() * (80 - 50 + 1)) + 50,
 				};
-				let gameStarted = await startGame(stt, token, axios)
+				let gameStarted = await startGame(stt, token, urlData, axios)
 				if (gameStarted) {
 					await waitGame(stt, 60);
-					await stopGame(stt, token, axios, gameData)
+					await stopGame(stt, token, urlData, axios, gameData)
 					attemptsLeft--
 				}
 			}
