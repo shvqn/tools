@@ -24,11 +24,6 @@ export function timeRunAt(time) {
 }
 
 export async function countdown(seconds) {
-	// for (let i = seconds; i > 0; i--) {
-	//     console.log(`[+] Remaining time: ${Math.floor(i)} seconds`);
-	// process.stdout.write(`[+] Remaining time: ${Math.floor(i)} seconds`);
-	//     await new Promise(resolve => setTimeout(resolve, 1000));
-	// }
 	convertTimeRunAt(timeRunAt(seconds));
 	await new Promise(resolve => setTimeout(resolve, seconds*1000));
 }
@@ -48,10 +43,7 @@ export function contentId(t, i) {
 
 export const sleep = delay => new Promise(resolve => setTimeout(resolve, delay*1000));
 
-export function getData(filename)
-{
-	return fs.readFileSync(filename, "utf8").toString().split(/\r?\n/).filter((line) => line.trim() !== "");
-}
+0
 
 export function convertSecondsToHMS(seconds) {
 	const hours = Math.floor(seconds / 3600);
