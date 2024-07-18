@@ -32,7 +32,7 @@ function createAxiosInstance(proxy) {
 }
 //end config
 function formatTimeToUTC7(date) {
-    const utcOffset = 0; // UTC+7
+    const utcOffset = 7; // UTC+7
     const utc7Date = new Date(date.getTime() + utcOffset * 60 * 60 * 1000);
 
     const hours = String(utc7Date.getUTCHours()).padStart(2, '0');
@@ -77,7 +77,7 @@ async function claimFarm(stt, uid, farmId, axios, urlData) {
 		const headers = {
 			"X-Api-Key": urlData
 		}
-		const response = await axios.post(`https://back.cybase.io/api/v1/widget/users/${uid}/jobs/${farmId}/complete`);
+		const response = await axios.post(`https://back.cybase.io/api/v1/widget/users/${uid}/jobs/${farmId}/complete`,{}, {headers});
 		if (response && response.status == 200) {
 			console.log(blue.bold(`[#] Account ${stt} | Claim farm success Balance =+ ${response.data.amount}`));
 		}
@@ -90,7 +90,7 @@ async function startFarm(stt, uid, axios, urlData) {
 		const headers = {
 			"X-Api-Key": urlData
 		}
-		const response = await axios.post(`https://back.cybase.io/api/v1/widget/users/${uid}/jobs`);
+		const response = await axios.post(`https://back.cybase.io/api/v1/widget/users/${uid}/jobs`,{}, {headers});
 		if (response && response.status == 200) {
 			console.log(blue.bold(`[#] Account ${stt} | Start farm success`));
 		}
