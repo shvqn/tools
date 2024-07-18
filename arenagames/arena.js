@@ -55,6 +55,7 @@ async function profile(stt, token, urlData, axios) {
 
 	} catch (e) {
 		console.log(`[*] Account ${stt} | profile: ${e}`);
+		console.log(e.response.data);
 	}
 }
 
@@ -196,6 +197,39 @@ async function stopGame(stt, token, urlData, axios, gameData) {
 		console.log(`[*] Account ${stt} | stopGame error: ${e}`);
 	}
 }
+async function getBoosterActive(stt, token, urlData, axios) {
+	try {
+		const headers = {
+			'at': token,
+			Tg: urlData
+		}
+		const payload = {
+		}
+		const response = await axios.get(`https://bot.arenavs.com/v1/booster/active`, payload, { headers });
+		if (response && response.status == 200 && !response.data.data.isActive) {
+			await buyBooster(stt, token, urlData, axios)
+		} 
+	}catch (e) {
+		console.log(`[*] Account ${stt} | buyBooster error: ${e}`);
+	}
+}
+async function buyBooster(stt, token, urlData, axios) {
+	try {
+		const headers = {
+			'at': token,
+			Tg: urlData
+		}
+		const payload = {
+			id: "668fe50153430647e44a5344"  //Booster combined
+		}
+		const response = await axios.post(`https://bot.arenavs.com/v1/booster/buy`, payload, { headers });
+		if (response && response.status == 201) {
+			console.log(`[#] Account ${stt} | Buy Booster Combined`);
+		} 
+	}catch (e) {
+		console.log(`[*] Account ${stt} | buyBooster error: ${e}`);
+	}
+}
 
 //
 async function main(stt, account, axios)
@@ -299,6 +333,9 @@ async function main(stt, account, axios)
 					await stopGame(stt, token, urlData, axios, gameData)
 					attemptsLeft--
 				}
+			}
+			if (balance > 4800) {
+				await getBoosterActive(stt, token, urlData, axios)
 			}
 		}
 
