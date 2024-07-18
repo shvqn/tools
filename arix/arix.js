@@ -56,7 +56,10 @@ async function getUserData(stt, userId, axios)
 async function claimFarm(stt, userId, axios)
 {
 	try{
-		const response = await axios.get(`https://miner-webapp-fz9k.vercel.app/api/claim?id=${userId}`);
+		const payload = {
+			id: userId
+		}
+		const response = await axios.post(`https://miner-webapp-fz9k.vercel.app/api/claim?id=${userId}`);
 		if (response && response.status == 200) {
 			console.log(blue.bold(`[#] Account ${stt} | Claimed farm, Balance ${response.data.balance} `));
 		}
