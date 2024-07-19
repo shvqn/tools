@@ -416,6 +416,7 @@ async function main(stt, account, axios)
 			while (true) {
 				const gameData = await playGame(stt, access_token, axios)
 				if (gameData.game_id){
+					console.log(yellow.bold(`[#] Account ${stt} | Còn ${gameData.game_count} vé`));
 					await waitGame(stt, 30)
 					const res = await claimGame(stt, access_token, axios, gameData.game_id)
 					if (res.status!=200) {
@@ -423,10 +424,9 @@ async function main(stt, account, axios)
 						continue;
 					}
 					console.log(`[#] Account ${stt} | Play game successful`);
-					if (!gameData.game_count) {
-						console.log(green.bold(`[#] Account ${stt} | Hết vé`));
+				} else {
+					console.log(green.bold(`[#] Account ${stt} | Hết vé`));
 						break;
-					} else console.log(yellow.bold(`[#] Account ${stt} | Còn ${gameData.game_count} vé`));
 				}
 			}
 			console.log(cyan.bold(`[#] Account ${stt} | Done!`));
