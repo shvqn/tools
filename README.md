@@ -17,3 +17,4 @@
 	Timefarm: https://t.me/TimeFarmCryptoBot?start=xlZ5oruZ4pvXAtiT
 	Tomarket https://t.me/Tomarket_ai_bot/app?startapp=00002iMg
 	Yescoin: https://t.me/theYescoin_bot/Yescoin?startapp=RqQgP1
+    Onux: https://t.me/onus_tap_tap_tap_bot/join?startapp=1725363482101
