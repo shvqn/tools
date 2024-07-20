@@ -95,7 +95,37 @@ async function startFarm(stt, axios)
 		return null;
 	}
 }
+async function getRef(stt, axios)
+{
+	try{
+		const headers = {};
 
+		const payload = {};
+
+		const response = await axios.get('https://api.cryptorank.io/v0/tma/account/buddies', payload, { headers: headers });
+		if (response && response.status == 200) {
+			if (!response.data.cooldown){
+				await claimRef(stt, axios)
+			}
+		}
+	}catch(e){
+		console.log(`[*] Account ${stt} | getRef err: ${e}`);
+	}
+}
+async function claimRef(stt, axios)
+{
+	try{
+		const headers = {};
+
+		const payload = {};
+
+		const response = await axios.get('https://api.cryptorank.io/v0/tma/account/buddies', payload, { headers: headers });
+		if (response && response.status == 200) {
+		}
+	}catch(e){
+		console.log(`[*] Account ${stt} | claimRef err: ${e}`);
+	}
+}
 async function checkTask(stt, userData, axios, idTask)
 {
 	try{
