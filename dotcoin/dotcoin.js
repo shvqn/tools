@@ -1,174 +1,23 @@
-const axios = require('axios');
-const fs = require('fs');
-const readlineSync = require('readline-sync');
-const { exec } = require('child_process');
+import querystring from 'querystring';
+import { countdown, randomInt, sleep, getData, getUserDataFromUrl, cPrx, formatNum } from './utils.js';
+import { cyan, yellow, blue, green } from 'console-log-colors';
+import AxiosHelpers from "./helpers/axiosHelper.js";
+import { log } from 'util';
 
-function clearConsole() {
-    if (process.platform === 'win32') {
-        exec('cls');
-    } else {
-        exec('clear');
-    }
-}
+const accounts = getData("data_dotcoin.txt");
+const proxies = getData("proxy.txt");
 
-function loadCredentials() {
-    try {
-        const credentialsList = fs.readFileSync('./authorization.txt', 'utf8').split('\n');
-        const credentials = credentialsList.map(cred => cred.trim());
-        return credentials;
-    } catch (error) {
-        console.error("Không tìm thấy file 'authorization.txt'. Đảm bảo file nằm trong cùng thư mục với nhau.");
-        return [];
-    }
-}
+let timeRerun = 8*60; //phút time nghỉ mỗi lượt chạy
+let numberThread = 1; // số luồng chạy /1 lần 
+//
+let apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impqdm5tb3luY21jZXdudXlreWlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDg3MDE5ODIsImV4cCI6MjAyNDI3Nzk4Mn0.oZh_ECA6fA2NlwoUamf1TqF45lrMC0uIdJXvVitDbZ8';
 
-async function fetchTaskIds(apikey, authorization) {
-    const url = 'https://jjvnmoyncmcewnuykyid.supabase.co/rest/v1/rpc/get_filtered_tasks';
-    const headers = {
-        'accept': '*/*',
-        'accept-language': 'en-US,en;q=0.9',
-        'apikey': apikey,
-        'authorization': `Bearer ${authorization}`,
-        'content-profile': 'public',
-        'content-type': 'application/json',
-        'origin': 'https://dot.dapplab.xyz',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'cross-site',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0',
-        'x-client-info': 'postgrest-js/1.9.2',
-        'x-telegram-user-id': '6726676206'
-    };
-    const data = { 'platform': 'ios', 'locale': 'en', 'is_premium': false };
-    try {
-        const response = await axios.post(url, data, { headers });
-        if (response.status === 200) {
-            const tasks = response.data;
-            const taskIds = tasks.map(task => task.id);
-            return taskIds;
-        } else {
-            console.error(`Không tìmđược nhiệm vụ, status code: ${response.status}`);
-            return [];
-        }
-    } catch (error) {
-        console.error(`Lỗi rồi: ${error}`);
-        return [];
-    }
-}
-
-async function addAttempts(lvl, apikey, authorization, currentLevel) {
-    const url = 'https://jjvnmoyncmcewnuykyid.supabase.co/rest/v1/rpc/add_attempts';
-    const headers = {
-        'accept': '*/*',
+function createAxiosInstance(proxy) {
+	return new AxiosHelpers({
+    headers: {
+		'accept': '*/*',
         'accept-language': 'en-ID,en-US;q=0.9,en;q=0.8,id;q=0.7',
-        'apikey': apikey,
-        'authorization': `Bearer ${authorization}`,
-        'content-profile': 'public',
-        'content-type': 'application/json',
-        'dnt': '1',
-        'origin': 'https://dot.dapplab.xyz',
-        'priority': 'u=1, i',
-        'referer': 'https://dot.dapplab.xyz/',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'cross-site',
-        'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
-        'x-client-info': 'postgrest-js/1.9.2'
-    };
-
-    while (true) {
-        process.stdout.write(`[ Upgrade ] : Nâng lên cấp độ ${lvl}\r`);
-        try {
-            const data = { 'lvl': lvl };
-            const response = await axios.post(url, data, { headers });
-            const responseData = response.data;
-            if (lvl > currentLevel) {
-                return false;
-            }
-            if (responseData.success) {
-                return true;
-            } else {
-                lvl += 1;
-            }
-        } catch (error) {
-            console.error(`Lỗi khi nâng cấp: ${error}`);
-        }
-    }
-}
-
-async function autoClearTask(apikey, authorization) {
-    const taskIds = await fetchTaskIds(apikey, authorization);
-    const baseUrl = 'https://jjvnmoyncmcewnuykyid.supabase.co/rest/v1/rpc/complete_task';
-    const headers = {
-        'accept': '*/*',
-        'accept-language': 'en-ID,en-US;q=0.9,en;q=0.8,id;q=0.7',
-        'apikey': apikey,
-        'authorization': `Bearer ${authorization}`,
-        'content-profile': 'public',
-        'content-type': 'application/json',
-        'dnt': '1',
-        'origin': 'https://dot.dapplab.xyz',
-        'priority': 'u=1, i',
-        'referer': 'https://dot.dapplab.xyz/',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'cross-site',
-        'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
-        'x-client-info': 'postgrest-js/1.9.2',
-        'x-telegram-user-id': '7003565657'
-    };
-    for (const taskId of taskIds) {
-        const data = { 'oid': String(taskId) };
-        try {
-            const response = await axios.post(baseUrl, data, { headers });
-            if (response.status === 200) {
-                console.log(`[ Task ${taskId} ] : Hoàn thành`);
-            } else {
-                console.log(`[ Task ${taskId} ] : Không thành công với mã trạng thái ${response.status}`);
-            }
-        } catch (error) {
-            console.error(`Lỗi hoàn thành nhiệm vụ ${taskId}: ${error}`);
-        }
-    }
-}
-
-async function saveCoins(coins, apikey, authorization) {
-    const url = 'https://jjvnmoyncmcewnuykyid.supabase.co/rest/v1/rpc/save_coins';
-    const headers = {
-        'accept': '*/*',
-        'accept-language': 'en-ID,en-US;q=0.9,en;q=0.8,id;q=0.7',
-        'apikey': apikey,
-        'authorization': `Bearer ${authorization}`,
-        'content-profile': 'public',
-        'content-type': 'application/json',
-        'dnt': '1',
-        'origin': 'https://dot.dapplab.xyz',
-        'priority': 'u=1, i',
-        'referer': 'https://dot.dapplab.xyz/',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'cross-site',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-        'x-client-info': 'postgrest-js/1.9.2'
-    };
-    const data = { 'coins': coins };
-
-    try {
-        const response = await axios.post(url, data, { headers });
-        return response.data;
-    } catch (error) {
-        console.error(`Lỗi khi nhận coin: ${error}`);
-        return false;
-    }
-}
-
-async function getUserInfo(apikey, authorization) {
-    const url = 'https://jjvnmoyncmcewnuykyid.supabase.co/rest/v1/rpc/get_user_info';
-    const headers = {
-        'accept': '*/*',
-        'accept-language': 'en-ID,en-US;q=0.9,en;q=0.8,id;q=0.7',
-        'apikey': apikey,
-        'authorization': `Bearer ${authorization}`,
+        'apikey': apiKey,
         'content-profile': 'public',
         'content-type': 'application/json',
         'dnt': '1',
@@ -183,133 +32,218 @@ async function getUserInfo(apikey, authorization) {
         'sec-fetch-site': 'cross-site',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome 125.0.0.0 Safari/537.36',
         'x-client-info': 'postgrest-js/1.9.2'
-    };
-    const data = {};
-    try {
-        const response = await axios.post(url, data, { headers });
-        return response.data;
-    } catch (error) {
-        console.error(`Không lấy được thông tin người dùng: ${error}`);
-        return null;
+    },
+    proxy: proxy ? proxy : false,
+  });
+}
+//end config
+// main
+async function getToken(stt,query, axios) {
+	try {
+		const headers = {
+			'Authorization': `Bearer ${apiKey}`,
+		}
+		const payload = {
+			'initData': query
+		}
+		const response = await axios.post(`https://api.dotcoin.bot/functions/v1/getToken`, payload, {headers});
+		if (response && response.status == 200) {
+			return response.data.token;
+		}
+	} catch (e) {
+		console.log(`[*] Account ${stt} | getToken: ${e}`);
+	}
+}
+async function getUserData(stt, token, axios) {
+	try {
+		const headers = {
+			'Authorization': `Bearer ${token}`,
+		}
+		const response = await axios.post(`https://api.dotcoin.bot/rest/v1/rpc/get_user_info`,{}, {headers});
+		if (response && response.status == 200) {
+			return response.data;
+		}
+	} catch (e) {
+		console.log(`[*] Account ${stt} | getUserData: ${e}`);
+	}
+}
+async function tap(stt, token, axios) {
+	try {
+		const headers = {
+			'Authorization': `Bearer ${token}`,
+		}
+		const payload = {
+			coins: 20000,
+		}
+		const response = await axios.post(`https://api.dotcoin.bot/rest/v1/rpc/save_coins`,payload, {headers});
+		if (response && response.status == 200) {
+			console.log(cyan.bold(`[#] Account ${stt} | Tap success`));
+			return true
+		} else return false
+	} catch (e) {
+		console.log(`[*] Account ${stt} | tap: ${e}`);
+		return false
+	}
+}
+async function upgradeDailyAttempts(stt, token, axios, level) {
+	try {
+		const headers = {
+			'Authorization': `Bearer ${token}`,
+		}
+		const payload = {
+			lvl: level
+		}
+		const response = await axios.post(`https://api.dotcoin.bot/rest/v1/rpc/add_attempts`,payload, {headers});
+		if (response && response.status == 200&& response.data.success) {
+			console.log(cyan.bold(`[#] Account ${stt} | Upgrade DailyAttempts Lv${level}`));
+			return true
+		} else return false
+	} catch (e) {
+		console.log(`[*] Account ${stt} | upgradeDailyAttempts: ${e}`);
+		return false
+	}
+}
+async function upgradeMultitap(stt, token, axios, level) {
+	try {
+		const headers = {
+			'Authorization': `Bearer ${token}`,
+		}
+		const payload = {
+			lvl: level
+		}
+		const response = await axios.post(`https://api.dotcoin.bot/rest/v1/rpc/add_multitap`,payload, {headers});
+		if (response && response.status == 200&& response.data.success) {
+			console.log(cyan.bold(`[#] Account ${stt} | Upgrade Multitap Lv${level}`));
+			return true
+		} else return false
+	} catch (e) {
+		console.log(`[*] Account ${stt} | upgradeMultitap: ${e}`);
+		return false
+	}
+}
+async function upgradeDtcMining(stt, token, axios, level) {
+	try {
+		const headers = {
+			'Authorization': `Bearer ${token}`,
+		}
+		const payload = {
+			lvl: level
+		}
+		const response = await axios.post(`https://api.dotcoin.bot/functions/v1/upgradeDTCMiner`,payload, {headers});
+		if (response && response.status == 200 && response.data.success) {
+			console.log(cyan.bold(`[#] Account ${stt} | Upgrade DtcMining Lv${level}`));
+			return true
+		} else return false
+	} catch (e) {
+		console.log(`[*] Account ${stt} | upgradeDtcMining: ${e}`);
+		return false
+	}
+}
+//
+async function main(stt, account, axios)
+{
+    try{
+		let urlData = querystring.unescape(account).split('tgWebAppData=')[1].split('&tgWebAppVersion')[0];
+		const token = await getToken(stt, urlData, axios);
+		console.log(cyan.bold(`[#] Account ${stt} | Auth... Code by @Shvqn`));
+		await sleep(5);
+        let uData = await getUserData(stt, token, axios);
+        if(uData){
+			let {first_name, daily_attempts, dtc_level, multiple_clicks, balance} = uData
+			console.log(blue.bold(`[*] Account ${stt} | User: ${first_name}, Balance: ${balance}`));
+			while (daily_attempts) {
+				const tapSuccess = await tap(stt, token, axios)
+				await sleep(randomInt(1,5))
+				if (tapSuccess) daily_attempts--
+			}
+			const multitapNextLevel = multiple_clicks
+			const nextMultitapPrice = Math.pow(2,multitapNextLevel)*1000
+			const nextDtcMiningPrice = Math.pow(2,dtc_level)*50*1000
+			if (balance>nextDtcMiningPrice) {
+				const upSuccess = await upgradeDtcMining(stt, token, axios, dtc_level+1)
+				if (upSuccess) balance =- nextDtcMiningPrice
+				
+			}
+			let level = 1;
+			while (true) {
+				const nextdailyAttemptsPrice = Math.pow(2,level)*1000
+				if ((balance-nextdailyAttemptsPrice)>nextDtcMiningPrice) {
+					const upgradeSuccess = await upgradeDailyAttempts(stt, token, axios, level)
+					if (upgradeSuccess) {
+						balance=-nextdailyAttemptsPrice
+						break;
+					} else level++
+				} else break;
+			}
+			if ((balance-nextMultitapPrice)>nextDtcMiningPrice){
+				await upgradeMultitap(stt, token, axios, multitapNextLevel)
+			}
+
+			console.log(blue.bold(`[*] Account ${stt} | Done!`));
+		} 
+    }catch(e){
+        console.log(`Main Err: ${e}`);
     }
 }
 
-function autoUpgradeDailyAttempt() {
-    const userInput = 'n';
-    if (userInput === 'y') {
-        try {
-            const nUpgrade = parseInt(readlineSync.question("Number of upgrades? "), 10);
-            return isNaN(nUpgrade) ? 0 : nUpgrade;
-        } catch (error) {
-            console.error("Dữ liệu nhập không hợp lệ, phải là số.");
-            return 0;  
+// end main
+async function runMulti() {
+    const createChunks = (array, size) => {
+        const result = [];
+        for (let i = 0; i < array.length; i += size) {
+            result.push(array.slice(i, i + size));
         }
-    }
-    return 0; 
-}
-
-async function autoGame(apikey, authorization, coins) {
-    const url = 'https://jjvnmoyncmcewnuykyid.supabase.co/rest/v1/rpc/try_your_luck';
-    const headers = {
-        'accept': '*/*',
-        'accept-language': 'en-ID,en-US;q=0.9,en;q=0.8,id;q=0.7',
-        'apikey': apikey,
-        'authorization': `Bearer ${authorization}`,
-        'cache-control': 'no-cache',
-        'content-profile': 'public',
-        'content-type': 'application/json',
-        'origin': 'https://dot.dapplab.xyz',
-        'pragma': 'no-cache',
-        'priority': 'u=1, i',
-        'referer': 'https://dot.dapplab.xyz/',
-        'sec-ch-ua': '"Microsoft Edge";v="125", "Chromium";v="125", "Not.A/Brand";v="24", "Microsoft Edge WebView2";v="125"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'cross-site',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0',
-        'x-client-info': 'postgrest-js/1.9.2',
+        return result;
     };
-    const data = { 'coins': coins };
-    try {
-        const response = await axios.post(url, data, { headers });
-        const responseData = response.data;
-        if (responseData.success) {
-            console.log(`[ Game ] : Thắng`);
-        } else {
-            console.log(`[ Game ] : Thua`);
-        }
-    } catch (error) {
-        console.error(`Lỗi rồi: ${error}`);
+    let countPrx = proxies.length;
+    if(numberThread > countPrx) {
+			numberThread = countPrx
     }
-}
+    const accountChunks = createChunks(accounts, numberThread);
+		// let prx = await cPrx(); if(!prx) return;
+    for (const chunk of accountChunks) {
+        let proxy = null;
+        const tasks = chunk.map(async (account, index) => {
+            const globalIndex = accounts.indexOf(account);
 
-async function main() {
-    const clearTask = 'y';
-    const credentials = loadCredentials();
-    const nUpgrade = autoUpgradeDailyAttempt(); 
-    const upgradeSuccess = {}; 
-
-    const apikey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impqdm5tb3luY21jZXdudXlreWlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDg3MDE5ODIsImV4cCI6MjAyNDI3Nzk4Mn0.oZh_ECA6fA2NlwoUamf1TqF45lrMC0uIdJXvVitDbZ8';
-    
-    while (true) {  
-        for (let index = 0; index < credentials.length; index++) {
-            const authorization = credentials[index];
-            const info = await getUserInfo(apikey, authorization);
-            console.log(`============== [ Tài khoản ${index} | ${info.first_name} ] ==============`);
-
-            if (!upgradeSuccess[authorization]) {  
-                if (nUpgrade > 0) {  
-                    for (let i = 0; i < nUpgrade; i++) {
-                        const currentLevel = info.daily_attempts;
-                        const success = await addAttempts(0, apikey, authorization, currentLevel);
-                        if (success) {
-                            upgradeSuccess[authorization] = true;  
-                            console.log(`[ Upgrade ] : Thành công\r`);
-                            break;
-                        } else {
-                            console.log(`[ Upgrade ] : Thất bại\r`);
-                        }
-                    }
-                }
+            if (proxies.length > 0) {
+                proxy = proxies[globalIndex % proxies.length];
             }
 
-            if (info) {
-                if (clearTask === 'y') {
-                    await autoClearTask(apikey, authorization);
-                }
-                console.log(`[ Level ] : ${info.level}`);
-                console.log(`[ Balance ] : ${info.balance}`);
-                console.log(`[ Energy ] : ${info.daily_attempts}`);
-                console.log(`[ Limit Energy ] : ${info.limit_attempts}`);
-                console.log(`[ Multitap Level ] : ${info.multiple_clicks}`);
-                await autoGame(apikey, authorization, 150000);
-                const energy = info.daily_attempts;
-                if (energy > 0) {
-                    for (let i = 0; i < energy; i++) {
-                        process.stdout.write(`[ Tap ] : Tapping...`);
-                        await new Promise(resolve => setTimeout(resolve, 3000));
-                        await saveCoins(20000, apikey, authorization);
-                        console.log(`Thành công`);
-                    }
-                } else {
-                    console.log("Năng lượng đã hết. Chờ nạp năng lượng...");
-                }
-            } else {
-                console.log("Token không hợp lệ, chuyển tài khoản tiếp theo");
-            }
-        }
+			if (account) {
+					const axiosInstance = createAxiosInstance(proxy);
+					let stt = Number(globalIndex) + Number(1);
+					const maskedProxy = proxy?.slice(0, -10);
+					console.log(`[#] Account ${stt} | Proxy: ${maskedProxy}`);
+					console.log(`[#] Account ${stt} | Check IP...`);
+					let checkIp = await checkIP(axiosInstance);
+					console.log(`[#] Account ${stt} | Run at IP: ${checkIp}`);
+					await main(stt, account, axiosInstance);
+				}
+			})
+	
+		console.log(`Số luồng chạy: ${tasks.length} ...`);
 
-        console.log("==============Tất cả tài khoản đã được xử lý=================");
-        for (let i = 12*3600; i > 0; i--) {
-            process.stdout.write(`\rBắt đầu vòng lặp sau ${i} giây...`);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-        console.log(); 
-
-        clearConsole();
-    }
+		await Promise.all(tasks);
+	}
+}
+async function checkIP(axios) {
+	try {
+			const rs = await axios.get("https://api.myip.com");
+			await sleep(5)
+			const ip = rs.data?.ip;
+			const country = rs.data?.country;
+			return `${ip} - Country: ${country}`;
+	} catch (err) {
+			console.log("err checkip: ", err);
+			return null;
+	}
 }
 
-main();
+async function mainLoopMutil() {
+	while (true) {
+			await runMulti();
+			await countdown(timeRerun*60);
+	}
+}
+mainLoopMutil();
