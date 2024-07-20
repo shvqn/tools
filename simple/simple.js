@@ -153,9 +153,9 @@ async function spin(stt, user_id, query_id, axios, spinCount)
 		const response = await axios.post('https://api.simple.app/api/v1/public/telegram/claim-spin/', payload, { headers: headers });
 
 		if (response && response.status == 200) {
-			console.log(`[#] Account ${stt} | Spin thành công ${response.data.data.amount} ${spinType(response.data.data.spinType)}`);
+			console.log(`[#] Account ${stt} | Spin success ${response.data.data.amount} ${spinType(response.data.data.spinType)}`);
 			if (spinCount > 1) {
-                spin(stt, user_id, query_id, axios, spinCount - 1)
+                await spin(stt, user_id, query_id, axios, spinCount - 1)
             }
 		}
 	}catch(e){
@@ -194,13 +194,12 @@ async function buyMiningBlocks(stt, user_id, query_id, axios, mineId, level)
 		};
 
 		const response = await axios.post('https://api.simple.app/api/v1/public/telegram/buy-mining-block/', payload, { headers: headers });
-		console.log(response.data);
 		if (response && response.status == 200) {
 			console.log(`[#] Account ${stt} | Update Block ${mineId} Lv ${level}`);
 			return true
 		}
 	}catch(e){
-		console.log(`[#] Account ${stt} | Lỗi update block ${mineId}: ${response.data.message}`);
+		// console.log(`[#] Account ${stt} | Lỗi update block ${mineId}: ${e.response.data.message}`);
 		return false
 	}
 }
@@ -220,7 +219,7 @@ async function claimTaps(stt, user_id, query_id, axios, availableTaps, tapSize, 
 		if (response && response.status == 200) {
 			console.log(`[#] Account ${stt} | AvailableTaps: ${availableTaps}, Balance: ${balance}`);
 			if (availableTaps > tapSize) {
-                await sleep(5)
+                await sleep(randomInt(0,2))
                 await claimTaps(stt, user_id, query_id, axios, availableTaps - tapSize, tapSize, balance + tapSize);
             }
 		}
@@ -263,9 +262,8 @@ async function main(stt, account, axios) {
 			}
 
 			const minesData = await getMiningBlocks(stt, userId, account, axios)
-			const currBalance = balance;
-			for (let key in minesData) {
-				const block = minesData[key]
+			let currBalance = balance;
+			for (let block of minesData) {
 				if (block.currentLevel < block.maxLevel && currBalance > block.nextPrice) {
 					const res = await buyMiningBlocks(stt, userId, account, axios, block.mineId, block.currentLevel + 1);
 					if (res) {
