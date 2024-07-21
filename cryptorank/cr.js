@@ -104,7 +104,7 @@ async function getRef(stt, axios)
 
 		const response = await axios.get('https://api.cryptorank.io/v0/tma/account/buddies', payload, { headers: headers });
 		if (response && response.status == 200) {
-			if (!response.data.cooldown){
+			if (!response.data.cooldown && response.data.reward){
 				await claimRef(stt, axios)
 			}
 		}
@@ -119,32 +119,56 @@ async function claimRef(stt, axios)
 
 		const payload = {};
 
-		const response = await axios.get('https://api.cryptorank.io/v0/tma/account/buddies', payload, { headers: headers });
+		const response = await axios.get('https://api.cryptorank.io/v0/tma/account/claim/buddies', payload, { headers: headers });
 		if (response && response.status == 200) {
+			console.log(yellow.bold(`[#] Account ${stt} | Claim Ref success, Balance: ${response.data.balance}`));
 		}
 	}catch(e){
 		console.log(`[*] Account ${stt} | claimRef err: ${e}`);
 	}
 }
-async function checkTask(stt, userData, axios, idTask)
+async function getTask(stt, axios, balance)
 {
 	try{
 		const headers = {};
 
-		const payload = {
-			initData: userData,
-			requirementId: idTask
-		};
-
-		const response = await axios.post('https://api.timboo.pro/check_requirement', payload, { headers: headers });
+		const response = await axios.get('https://api.cryptorank.io/v0/tma/account/tasks', { headers: headers });
 
 		if (response && response.status == 200) {
-			return response.data;
+			let taskList = response.data
+			taskList = taskList.filter(task => task.type != "main_buddy")
+			for (let task of taskList) {
+				const now = new Date()
+				const nextClaimRepeatTask = new Date(task.lastClaim + task.cooldown*1000)
+				if (task.type == 'main_points'&&balance>task.reward*10&&!task.lastClaim) {
+					console.log(task);
+					await claimTask(stt, axios, task.id)
+				}
+				if (!task.lastClaim&&task.type !== 'main_points') {
+					console.log(task);
+					await claimTask(stt, axios, task.id)
+				}
+				if (task.isRepeatable && now>=nextClaimRepeatTask) {
+					console.log(task);
+					await claimTask(stt, axios, task.id)
+				}
+			}
 		}
-		return null;
 	}catch(e){
-		console.log(`[*] Account ${stt} | checkTask err: ${e}`);
-		return null;
+		console.log(`[*] Account ${stt} | getTask err: ${e}`);
+	}
+}
+async function claimTask(stt, axios, taskId)
+{
+	try{
+		const headers = {};
+
+		const response = await axios.post(`https://api.cryptorank.io/v0/tma/account/claim/task/${taskId}`, { headers: headers });
+		if (response && response.status == 201) {
+			console.log(green.bold(`[#] Account ${stt} | Claim task success, Balance: ${response.data.balance}`));
+		}
+	}catch(e){
+		console.log(`[*] Account ${stt} | claimTask err: ${e}`);
 	}
 }
 //
@@ -160,9 +184,11 @@ async function main(stt, axios) {
 			if (farmFinishAt && now >= farmFinishAt) {
                 await claimFarm(stt, axios);
                 await startFarm(stt, axios);
-        } else {
-            console.log(`[#] Account ${stt} | Có thể claim lúc ${formatTimeToUTC7(farmFinishAt)}`)
-        }
+			} else {
+				console.log(`[#] Account ${stt} | Có thể claim lúc ${formatTimeToUTC7(farmFinishAt)}`)
+			}
+			await getTask(stt, axios, uData.balance)
+			await getRef(stt, axios)
 		}
 		console.log(cyan.bold(`[#] Account ${stt} | Done!`));
 
