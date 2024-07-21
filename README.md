@@ -1,5 +1,5 @@
-#Tele: @Nauquu
-	Arix: https://t.me/ARIXcoin_bot?start=ref_5904599269
+ Tele: @Nauquu
+ Arix: https://t.me/ARIXcoin_bot?start=ref_5904599269
 	ArenaGames: https://t.me/Arenavsbot?start=ref_27E7FzdsR8WeTmALFiUgLJ
 	Babydoge: https://t.me/BabyDogePAWS_Bot?start=r_5904599269
 	Blum: https://t.me/BlumCryptoBot/app?startapp=ref_8ZHWL6qvRI
