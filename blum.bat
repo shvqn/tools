@@ -1,7 +1,7 @@
 @echo on
 cd blum
 
-python blumpy.py
+node blum.js
 
 pause
 

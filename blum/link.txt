@@ -1,2 +1,0 @@
-https://chromewebstore.google.com/detail/requestly-intercept-modif/mdnleldcmiljblolnjhpnblkcekpdkpa
-pip: curl -sSL https://bootstrap.pypa.io/get-pip.py -o get-pip.py
