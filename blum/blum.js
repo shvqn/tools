@@ -111,7 +111,7 @@ async function claimRef(stt, axios, token)
 		const headers = {
 			"Authorization": `Bearer ${token}`,
 		}
-		const response = await axios.post(`https://gateway.blum.codes/v1/friends/claim`, {headers});
+		const response = await axios.post(`https://gateway.blum.codes/v1/friends/claim`, {}, {headers});
 		if (response && response.status == 200) {
 			console.log(blue.bold(`[@Nauquu] Account ${stt} | Claim ref success, Balance =+ ${response.data.claimBalance} `));
 		}
@@ -171,8 +171,8 @@ async function main(stt, account, axios) {
 			const now = new Date()
 			const farmFinishAt = new Date(farming.endTime)
 			if (now > farmFinishAt) {
-				await claimFarm()
-				await startFarm()
+				await claimFarm(stt,axios,token)
+				await startFarm(stt,axios,token)
 			} else console.log(green.bold(`[@Nauquu] Account ${stt} | Farm end at ${formatTimeToUTC7(farmFinishAt)}`));
 			await getRef(stt, axios, token)
 			while (playPasses) {

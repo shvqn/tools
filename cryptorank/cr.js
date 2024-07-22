@@ -141,15 +141,12 @@ async function getTask(stt, axios, balance)
 				const now = new Date()
 				const nextClaimRepeatTask = new Date(task.lastClaim + task.cooldown*1000)
 				if (task.type == 'main_points'&&balance>task.reward*10&&!task.lastClaim) {
-					console.log(task);
 					await claimTask(stt, axios, task.id)
 				}
 				if (!task.lastClaim&&task.type !== 'main_points') {
-					console.log(task);
 					await claimTask(stt, axios, task.id)
 				}
 				if (task.isRepeatable && now>=nextClaimRepeatTask) {
-					console.log(task);
 					await claimTask(stt, axios, task.id)
 				}
 			}
