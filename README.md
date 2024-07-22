@@ -1,6 +1,6 @@
- Tele: @Nauquu
- Arix: https://t.me/ARIXcoin_bot?start=ref_5904599269
-	ArenaGames: https://t.me/Arenavsbot?start=ref_27E7FzdsR8WeTmALFiUgLJ
+	Tele: @Nauquu
+ 	Arix: https://t.me/ARIXcoin_bot?start=ref_5904599269
+ 	ArenaGames: https://t.me/Arenavsbot?start=ref_27E7FzdsR8WeTmALFiUgLJ
 	Babydoge: https://t.me/BabyDogePAWS_Bot?start=r_5904599269
 	Blum: https://t.me/BlumCryptoBot/app?startapp=ref_8ZHWL6qvRI
 	Cex: https://t.me/cexio_tap_bot?start=1716323293133092
@@ -18,4 +18,4 @@
 	Timefarm: https://t.me/TimeFarmCryptoBot?start=xlZ5oruZ4pvXAtiT
 	Tomarket https://t.me/Tomarket_ai_bot/app?startapp=00002iMg
 	Yescoin: https://t.me/theYescoin_bot/Yescoin?startapp=RqQgP1
-    Onux: https://t.me/onus_tap_tap_tap_bot/join?startapp=1725363482101
+	Onux: https://t.me/onus_tap_tap_tap_bot/join?startapp=1725363482101
