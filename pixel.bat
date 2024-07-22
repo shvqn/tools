@@ -1,7 +1,7 @@
 @echo on
-cd pixeltap
+cd pixelfarm
 
-node pixel.js
+node pixelfarm.js
 
 pause
 
