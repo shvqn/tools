@@ -127,7 +127,7 @@ async function main(stt, account, axios) {
 			if (pointday.golden_value > pointToExchange) {
 				await exchange(stt, axios, pointToExchange)
 			}
-			await getRef(stt, axios)
+			//await getRef(stt, axios)
 		console.log(cyan.bold(`[Nauquu] Account ${stt} | Done!`));
 		}
 	} catch (e) {
