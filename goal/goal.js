@@ -6,7 +6,7 @@ import AxiosHelpers from "./helpers/axiosHelper.js";
 const accounts = getData("data_goal.txt");
 const proxies = getData("proxy.txt");
 
-let timeRerun = 60; //phút time nghỉ mỗi lượt chạy
+let timeRerun = 50; //phút time nghỉ mỗi lượt chạy
 let numberThread = 1; // số luồng chạy /1 lần 
 let pointToExchange = 200000 //số bóng đạt đến để đổi qua usdt
 
