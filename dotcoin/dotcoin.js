@@ -73,11 +73,11 @@ async function tap(stt, token, axios) {
 			'Authorization': `Bearer ${token}`,
 		}
 		const payload = {
-			coins: 20000,
+			coins: randomInt(15000,20000),
 		}
 		const response = await axios.post(`https://api.dotcoin.bot/rest/v1/rpc/save_coins`,payload, {headers});
 		if (response && response.status == 200) {
-			console.log(cyan.bold(`[#] Account ${stt} | Tap success`));
+			console.log(cyan.bold(`[#] Account ${stt} | Tap success, Balance =+ ${payload.coins}`));
 			return true
 		} else return false
 	} catch (e) {
@@ -121,15 +121,13 @@ async function upgradeMultitap(stt, token, axios, level) {
 		return false
 	}
 }
-async function upgradeDtcMining(stt, token, axios, level) {
+async function upgradeDtcMining(stt, token, axios, level, userId) {
 	try {
 		const headers = {
 			'Authorization': `Bearer ${token}`,
+			'X-Telegram-User-Id': userId, 
 		}
-		const payload = {
-			lvl: level
-		}
-		const response = await axios.post(`https://api.dotcoin.bot/functions/v1/upgradeDTCMiner`,payload, {headers});
+		const response = await axios.post(`https://api.dotcoin.bot/functions/v1/upgradeDTCMiner`,{}, {headers});
 		if (response && response.status == 200 && response.data.success) {
 			console.log(cyan.bold(`[#] Account ${stt} | Upgrade DtcMining Lv${level}`));
 			return true
@@ -145,7 +143,7 @@ async function main(stt, account, axios)
     try{
 		let urlData = querystring.unescape(account).split('tgWebAppData=')[1].split('&tgWebAppVersion')[0];
 		const token = await getToken(stt, urlData, axios);
-		console.log(cyan.bold(`[#] Account ${stt} | Auth... Code by @Shvqn`));
+		console.log(cyan.bold(`[#] Account ${stt} | Auth...`));
 		await sleep(5);
         let uData = await getUserData(stt, token, axios);
         if(uData){
@@ -160,13 +158,13 @@ async function main(stt, account, axios)
 			const nextMultitapPrice = Math.pow(2,multitapNextLevel)*1000
 			const nextDtcMiningPrice = Math.pow(2,dtc_level)*50*1000
 			if (balance>nextDtcMiningPrice) {
-				const upSuccess = await upgradeDtcMining(stt, token, axios, dtc_level+1)
+				const upSuccess = await upgradeDtcMining(stt, token, axios, dtc_level+1, uData.id)
 				if (upSuccess) balance =- nextDtcMiningPrice
 				
 			}
 			let level = 1;
 			while (true) {
-				const nextdailyAttemptsPrice = Math.pow(2,level)*1000
+				let nextdailyAttemptsPrice = Math.pow(2,level)*1000
 				if ((balance-nextdailyAttemptsPrice)>nextDtcMiningPrice) {
 					const upgradeSuccess = await upgradeDailyAttempts(stt, token, axios, level)
 					if (upgradeSuccess) {
@@ -175,6 +173,7 @@ async function main(stt, account, axios)
 					} else level++
 				} else break;
 			}
+			await sleep(2)
 			if ((balance-nextMultitapPrice)>nextDtcMiningPrice){
 				await upgradeMultitap(stt, token, axios, multitapNextLevel)
 			}
