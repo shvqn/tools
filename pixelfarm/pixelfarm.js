@@ -111,7 +111,25 @@ async function claimTask(stt, axios, token, questId)
 			console.log(blue.bold(`[@Nauquu] Account ${stt} | ${response.data.messages}`));
 		}
 	}catch(e){
-		console.log(`[@Nauquu] Account ${stt} | claimTask err: ${e.response.data.message}`);
+		console.log(`[@Nauquu] Account ${stt} | ${e.response.data.message}`);
+	}
+}
+async function sellFruit(stt, axios, token, amount, type)
+{
+	try{
+		const headers = {
+			Authorization: `Bearer ${token}`
+		}
+		const payload = {
+			amount: amount,
+			tree_type: type
+		}
+		const response = await axios.post(`https://api.pixelfarm.app/user/sell-fruit`,payload, {headers});
+		if (response && response.status == 201) {
+			console.log(blue.bold(`[Nauquu] Account ${stt} | ${response.data.messages}`));
+		}
+	}catch(e){
+		console.log(`[Nauquu] Account ${stt} | ${e.response.data.message}`);
 	}
 }
 
@@ -125,9 +143,15 @@ async function main(stt, account, axios) {
 		const uData = await getUserData(stt, axios, token)
 		if (uData) {
 			const cropsData = uData.crops
-			console.log(green.bold(`[@Nauquu] Account ${stt} | User: ${uData.telegram_username}, Balance: ${cropsData[0].fruit_total}`));
+			let balance = uData.crops.map(item => ` ${item.fruit_total}${item.tree_type}`).join(', ');
+			console.log(green.bold(`[@Nauquu] Account ${stt} | User: ${uData.telegram_username}, Balance: ${uData.gem_amount} Gems,${balance}`));
 			await claimFarm(stt, axios, token)
 			await getTask(stt, axios, token, uData.telegram_id)
+			for (let tree of cropsData) {
+				if (tree.fruit_total) {
+					await sellFruit(stt, axios, token, tree.fruit_total, tree.tree_type)
+				}
+			}
 		console.log(cyan.bold(`[@Nauquu] Account ${stt} | Done!`));
 		}
 	} catch (e) {
