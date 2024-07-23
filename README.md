@@ -50,3 +50,7 @@
 - Auto claim ref
 - Auto farm
 - Auto tap
+## [Goal2cash](https://t.me/goal2cash_bot?start=INV5904599269)
+- Auto shot ball
+- Auto claim ref
+- Auto to exchange ball to usdt
