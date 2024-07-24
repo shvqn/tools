@@ -21,6 +21,7 @@ function createAxiosInstance(proxy) {
         'content-profile': 'public',
         'content-type': 'application/json',
         'dnt': '1',
+		'author': 'https://t.me/Nauquu',
         'origin': 'https://dot.dapplab.xyz',
         'priority': 'u=1, i',
         'referer': 'https://dot.dapplab.xyz/',
@@ -128,6 +129,7 @@ async function upgradeDtcMining(stt, token, axios, level, userId) {
 			'X-Telegram-User-Id': userId, 
 		}
 		const response = await axios.post(`https://api.dotcoin.bot/functions/v1/upgradeDTCMiner`,{}, {headers});
+		console.log(response);
 		if (response && response.status == 200 && response.data.success) {
 			console.log(cyan.bold(`[#] Account ${stt} | Upgrade DtcMining Lv${level}`));
 			return true
@@ -157,11 +159,11 @@ async function main(stt, account, axios)
 			const multitapNextLevel = multiple_clicks
 			const nextMultitapPrice = Math.pow(2,multitapNextLevel)*1000
 			const nextDtcMiningPrice = Math.pow(2,dtc_level)*50*1000
-			if (balance>nextDtcMiningPrice) {
-				const upSuccess = await upgradeDtcMining(stt, token, axios, dtc_level+1, uData.id)
-				if (upSuccess) balance =- nextDtcMiningPrice
-				
-			}
+			// console.log(balance>nextDtcMiningPrice);
+			// if (balance>nextDtcMiningPrice) {
+			// 	const upSuccess = await upgradeDtcMining(stt, token, axios, dtc_level+1, uData.id)
+			// 	if (upSuccess) balance =- nextDtcMiningPrice
+			// }
 			let level = 1;
 			while (true) {
 				let nextdailyAttemptsPrice = Math.pow(2,level)*1000
