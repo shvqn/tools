@@ -33,23 +33,6 @@ function createAxiosInstance(proxy) {
 }
 //end config
 // main
-async function getToken(stt, axios, query)
-{
-	try{
-		const headers = {
-		}
-		const payload = {
-			"auth_data": query
-		}
-		const response = await axios.get(`https://api.pixelfarm.app/user/login?auth_data=${query}`,{}, {headers});
-		if (response && response.status == 200) {
-			return response.data.data;
-		}
-	}catch(e){
-		console.log(`[@Nauquu] Account ${stt} | getToken err: ${e}`);
-		console.log(e.response.d);
-	}
-}
 async function getUserData(stt, axios, token)
 {
 	try{
@@ -137,8 +120,7 @@ async function sellFruit(stt, axios, token, amount, type)
 async function main(stt, account, axios) {
 	try {
 		// let urlData = querystring.unescape(account).split('tgWebAppData=')[1].split('&tgWebAppVersion')[0];
-		let urlData= account.split('#tgWebAppData=')[1].split('&')[0];
-		const token = await getToken(stt, axios, urlData)
+		const token = new URLSearchParams(new URL(account).searchParams).get("code");
 		await sleep(5);
 		const uData = await getUserData(stt, axios, token)
 		if (uData) {
