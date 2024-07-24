@@ -37,7 +37,7 @@ function createAxiosInstance(proxy, query) {
 async function getUserData(stt, axios)
 {
 	try{
-		const response = await axios.get(`https://app.footballearn.com/v1/userpoint/state/`);
+		const response = await axios.get(`https://app.footballearn.com/v1/userpoint/state/?version=3`,{});
 		if (response && response.status == 200) {
 			return response.data;
 		}
