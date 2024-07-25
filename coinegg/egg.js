@@ -26,19 +26,20 @@ function createAxiosInstance(proxy) {
 	return new AxiosHelpers({
 		headers: {
 			'accept': 'application/json, text/plain, */*',
-                    'accept-language': 'vi;q=0.8',
-                    'content-type': 'application/json',
-                    'origin': 'https://app-coop.rovex.io',
-                    'priority': 'u=1, i',
-                    'referer': 'https://app-coop.rovex.io/',
-                    'sec-ch-ua': '"Not/A)Brand";v="8", "Chromium";v="126", "Brave";v="126"',
-                    'sec-ch-ua-mobile': '?0',
-                    'sec-ch-ua-platform': '"Windows"',
-                    'sec-fetch-dest': 'empty',
-                    'sec-fetch-mode': 'cors',
-                    'sec-fetch-site': 'cross-site',
-                    'sec-gpc': '1',
-                    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+				'accept-language': 'vi;q=0.8',
+				'content-type': 'application/json',
+				'origin': 'https://app-coop.rovex.io',
+				'priority': 'u=1, i',
+				'author': 'https://t.me/nauquu',
+				'referer': 'https://app-coop.rovex.io/',
+				'sec-ch-ua': '"Not/A)Brand";v="8", "Chromium";v="126", "Brave";v="126"',
+				'sec-ch-ua-mobile': '?0',
+				'sec-ch-ua-platform': '"Windows"',
+				'sec-fetch-dest': 'empty',
+				'sec-fetch-mode': 'cors',
+				'sec-fetch-site': 'cross-site',
+				'sec-gpc': '1',
+				'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
 		},
 		proxy: proxy ? proxy : false,
 	});
@@ -115,10 +116,10 @@ async function collectEggs(stt, axios, token, eggID)
 
 		const response = await axios.post('https://egg-api.hivehubs.app/api/scene/egg/reward', payload, { headers: headers });
 		if (response && response.status == 200) {
-			const type = response.data['data'].a_type;
-			if (type) {
+			if (response.data['data'].a_type) {
+				const type = response.data['data'].a_type;
 				let icon = (type ==='egg') ? "🥚" : (type ==='diamond') ? "💎" : "💲"
-				console.log(`[#] Account ${stt} | Đã nhặt ${response.data['data'].amount} ${icon}`);
+				console.log(`[Nauquu] Account ${stt} | Đã nhặt ${response.data['data'].amount} ${icon}`);
 			}
         }
 	}catch(e){
@@ -156,10 +157,10 @@ async function collectRefs(stt, axios, token, refID)
 
 		const response = await axios.post('https://egg-api.hivehubs.app/api/invite/reward', payload, { headers: headers });
 		if (response && response.data.code == 0) {
-			console.log(`[#] Account ${stt} | Claim 2 💎 from ref`);
+			console.log(`[Nauquu] Account ${stt} | Claim 2 💎 from ref`);
 			return true
 		} else {
-			console.log(`[#] Account ${stt} | ${response.data.message}`);
+			console.log(`[Nauquu] Account ${stt} | ${response.data.message}`);
 			return false
 		}
 	}catch(e){
@@ -170,7 +171,7 @@ async function collectRefs(stt, axios, token, refID)
 //
 async function main(stt, axios, account) {
 	try {
-		console.log(cyan.bold(`[#] Account ${stt} | Login...`));
+		console.log(cyan.bold(`[Nauquu] Account ${stt} | Login...`));
 		await sleep(5);
 		let token = await getToken(stt, axios, account);
 		if(token){
@@ -178,25 +179,34 @@ async function main(stt, axios, account) {
             const diamond = assets['diamond'] ? assets['diamond'].amount : 0;
             const egg = assets['egg'] ? assets['egg'].amount : 0;
             const usdt = assets['usdt'] ? assets['usdt'].amount : 0;
-            console.log(`[#] Account ${stt} | Balance: ${diamond} 💎, ${egg} 🥚, ${usdt} 💲`)
+            console.log(`[Nauquu] Account ${stt} | Balance: ${diamond} 💎, ${egg} 🥚, ${usdt} 💲`)
 			await getEggs(stt, axios, token)
 			let refList = []
 			let startId = ""
-			for (let i = 0; i<3; i++) {
+			let conti = true
+			let len = 19
+			while (true) {
 				const refs = await getRefs(stt, axios, token, startId)
-				startId = refs[19].id
-				refList.push(...refs)
-			}
-			const availableRef = refList.filter(item => item.flag === 0);
-			
-			if (availableRef) {
-				for (const key of availableRef) {
-		    		const refAvai = await collectRefs(stt, axios, token, key.id)
-					if (!refAvai) break;
+				for (const [index, ref] of refs.entries())  {
+					if (ref.flag == 0) {
+						refList.push(ref)
+					} else {
+						len = index
+						conti = false
+						break;
+					}
 				}
+				startId = refs[len].id
+				if (conti == false) break;
 			}
+			if (refList) {
+				for (let i = refList.length - 1; i>=0; i--) {
+		    		const refAvai = await collectRefs(stt, axios, token, refList[i].id)
+					if (!refAvai) break;
+				} 
+			} else console.log(`[Nauquu] Account ${stt} | Hết ref`);
 		}
-		console.log(cyan.bold(`[#] Account ${stt} | Done!`));
+		console.log(cyan.bold(`[Nauquu] Account ${stt} | Done!`));
 
 	} catch (e) {
 		console.log(`Main Err: ${e}`);
@@ -234,11 +244,8 @@ async function runMulti() {
 		if (account) {
 			const axiosInstance = createAxiosInstance(proxy);
 			let stt = Number(globalIndex) + Number(1);
-			const maskedProxy = proxy?.slice(0, -10) ;
-			console.log(`[#] Account ${stt} | Proxy: ${maskedProxy}`);
-			console.log(`[#] Account ${stt} | Check IP...`);
 			let checkIp = await checkIP(axiosInstance);
-			console.log(`[#] Account ${stt} | Run at IP: ${checkIp}`);
+			console.log(`[Nauquu] Account ${stt} | Run at IP: ${checkIp}`);
 			await main(stt, axiosInstance, account);
 		}
 	})
