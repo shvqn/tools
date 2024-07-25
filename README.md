@@ -54,3 +54,6 @@
 - Auto shot ball
 - Auto claim ref
 - Auto to exchange ball to usdt
+## [UECoin](https://t.me/UEEx_Miner_bot/UEB_Miner_Bot?startapp=kBNoWEHfEAB8S9rmMSA)
+- Auto collect coin
+- Auto collect ref
