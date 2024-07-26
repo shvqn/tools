@@ -71,10 +71,11 @@ async function claimFarm(stt, axios, token)
 		}
 		const response = await axios.post(`https://game-domain.blum.codes/api/v1/farming/claim`, {headers});
 		if (response && response.status == 200) {
-			console.log(blue.bold(`[@Nauquu] Account ${stt} | Claim farm success `));
+			console.log(blue.bold(`[@Nauquu] Account ${stt} | Claim farm success, Balance: ${response.data.availableBalance} `));
 		}
 	}catch(e){
 		console.log(`[@Nauquu] Account ${stt} | claimFarm err: ${e}`);
+		console.log(e.response.data);
 	}
 }
 async function startFarm(stt, axios, token)
@@ -147,12 +148,25 @@ async function claimGame(stt, axios, token, gameId)
 			"point": point
 		}
 		const response = await axios.post(`https://game-domain.blum.codes/api/v1/game/claim`,payload, {headers});
-		console.log(response);
 		if (response && response.status == 200) {
 			console.log(blue.bold(`[@Nauquu] Account ${stt} | Claim game, Balance =+ ${payload.point}`));
 		}
 	}catch(e){
 		console.log(`[@Nauquu] Account ${stt} | claimGame err: ${e}`);
+	}
+}
+async function claimDailyReward(stt, axios, token)
+{
+	try{
+		const headers = {
+			"Authorization": `Bearer ${token}`,
+		}
+		const response = await axios.get(`https://game-domain.blum.codes/api/v1/daily-reward?offset=-420`, {headers});
+		if (response && response.status == 200) {
+			console.log(blue.bold(`[@Nauquu] Account ${stt} | Claim daily reward`));
+		}
+	}catch(e){
+		console.log(`[@Nauquu] Account ${stt} | The daily reward has been received today`);
 	}
 }
 
@@ -166,8 +180,10 @@ async function main(stt, account, axios) {
 		await sleep(5);
 		const uData = await getUserData(stt, axios, token)
 		if (uData) {
+			await claimDailyReward(stt, axios, token)
 			let {availableBalance, playPasses, farming} = uData
 			console.log(green.bold(`[@Nauquu] Account ${stt} | User: ${username}, Balance: ${availableBalance}, PlayPasses: ${playPasses}`));
+			if (!farming) await startFarm(stt,axios,token)
 			const now = new Date()
 			const farmFinishAt = new Date(farming.endTime)
 			if (now > farmFinishAt) {
