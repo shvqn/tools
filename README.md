@@ -1,6 +1,8 @@
 ## Tele: [Nauquu](t.me/@Nauquu)
 ## [Arix](https://t.me/ARIXcoin_bot?start=ref_5904599269)
 - Auto farm
+- Auto upgrade
+- Auto boost
 ## [ArenaGames](https://t.me/Arenavsbot?start=ref_27E7FzdsR8WeTmALFiUgLJ)
 - Auto claim ref
 - Auto farm
