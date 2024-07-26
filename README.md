@@ -59,3 +59,5 @@
 ## [UECoin](https://t.me/UEEx_Miner_bot/UEB_Miner_Bot?startapp=kBNoWEHfEAB8S9rmMSA)
 - Auto collect coin
 - Auto collect ref
+## Rovex
+- Auto trade
