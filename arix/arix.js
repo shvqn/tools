@@ -10,11 +10,25 @@ const proxies = getData("proxy.txt");
 let timeRerun = 6*60; //phút time nghỉ mỗi lượt chạy
 let numberThread = 1; // số luồng chạy /1 lần 
 
-let auto_farm = true; // auto farm
-let auto_claim_boxs = true; // auto claim box 
-let auto_task = true; // auto task 
-let auto_upgdate_spin = true; // auto update spin
-let max_spin_level = 12; //max level spin
+const upgradeList = [
+	{
+		name: "upgrade_miner_10",
+		price: 20
+	},
+	{
+		name:"upgrade_miner_20",
+		price: 50 
+	},
+	{
+		name: "upgrade_cap_6",
+		price: 100
+	},
+	{
+		name: "upgrade_time_12",
+		price: 50
+	}
+	
+]
 // 
 
 function createAxiosInstance(proxy) {
@@ -56,32 +70,64 @@ async function getUserData(stt, userId, axios)
 async function claimFarm(stt, userId, axios)
 {
 	try{
-		const payload = {
-			id: userId
-		}
 		const response = await axios.post(`https://miner-webapp-fz9k.vercel.app/api/claim?id=${userId}`);
 		if (response && response.status == 200) {
-			console.log(blue.bold(`[#] Account ${stt} | Claimed farm, Balance ${response.data.balance} `));
+			console.log(blue.bold(`[Nauquu] Account ${stt} | Claimed farm, Balance ${response.data.balance} `));
 		}
 	}catch(e){
 		console.log(`[*] Account ${stt} | claimFarm err: ${e}`);
 	}
 }
-
+async function upgrade(stt, userId, axios, type)
+{
+	try{
+		const response = await axios.post(`https://miner-webapp-fz9k.vercel.app/api/boost?id=${userId}&command=${type}`);
+		if (response && response.status == 200) {
+			console.log(blue.bold(`[Nauquu] Account ${stt} | ${response.data.message} `));
+			return true
+		}
+	}catch {
+		return false
+	}
+}
+async function fullCharge(stt, userId, axios)
+{
+	try{
+		const response = await axios.post(`https://miner-webapp-fz9k.vercel.app/api/boost?id=${userId}&command=fullcharge`);
+		if (response && response.status == 200) {
+			console.log(blue.bold(`[Nauquu] Account ${stt} | Boost Full Charge`));
+			await claimFarm(stt, userId, axios)
+			return true
+		}
+	}catch {
+		return false
+	}
+}
 //
 async function main(stt, account, axios) {
 	try {
 		// let urlData = querystring.unescape(account).split('tgWebAppData=')[1].split('&tgWebAppVersion')[0];
 		const userId = extractUserId(account);
 
-		console.log(cyan.bold(`[#] Account ${stt} | Login...`));
+		console.log(cyan.bold(`[Nauquu] Account ${stt} | Login...`));
 		await sleep(5);
 		const uData = await getUserData(stt, userId, axios)
 		if (uData) {
-			console.log(green.bold(`[#] Account ${stt} | ${uData.last_name} ${uData.first_name} Balance: ${uData.balance}`));
+			let balance = uData.balance
+			console.log(green.bold(`[Nauquu] Account ${stt} | ${uData.last_name} ${uData.first_name} Balance: ${balance}`));
 			await claimFarm(stt, userId, axios)
+			for (const item of upgradeList) {
+				if (balance > item.price) {
+					const upgradeSuccess = await upgrade(stt, userId, axios, item.name)
+					if (upgradeSuccess) balance =- item.price
+				}
+			}
+			while (true) {
+				const boostSuccess = await fullCharge(stt, userId, axios)
+				if (!boostSuccess) break
+			}
 		}
-		console.log(cyan.bold(`[#] Account ${stt} | Done!`));
+		console.log(cyan.bold(`[Nauquu] Account ${stt} | Done!`));
 
 	} catch (e) {
 		console.log(`Main Err: ${e}`);
@@ -120,15 +166,11 @@ async function runMulti() {
 		if (account) {
 			const axiosInstance = createAxiosInstance(proxy);
 			let stt = Number(globalIndex) + Number(1);
-			const maskedProxy = proxy?.slice(0, -10) + '**********';
-			console.log(`[#] Account ${stt} | Proxy: ${maskedProxy}`);
-			console.log(`[#] Account ${stt} | Check IP...`);
 			let checkIp = await checkIP(axiosInstance);
-			console.log(`[#] Account ${stt} | Run at IP: ${checkIp}`);
+			console.log(`[Nauquu] Account ${stt} | Run at IP: ${checkIp}`);
 			await main(stt, account, axiosInstance);
 		}
 	})
-	console.log(`Số luồng chạy: ${tasks.length} ...`);
 	await Promise.all(tasks);
 }
 }
