@@ -12,6 +12,7 @@
 - Auto play game
 - Auto task
 - Auto claim ref
+- Auto claim daily reward
 ## [Cex](https://t.me/cexio_tap_bot?start=1716323293133092)
 - Auto claim ref
 - Auto tap
