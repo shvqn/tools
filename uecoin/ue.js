@@ -160,25 +160,27 @@ async function main(stt, account, axios) {
 		await sleep(5);
 		const balance = await getBalance(stt, axios, token)
 		if (balance) {
-			console.log(green.bold(`[Nauquu] Account ${stt} | User: ${name}, UE: ${balance.ue.amount}, Usdt: ${balance.usdt.amount}, Diamond: ${balance.diamond.amount}`));
+			console.log(green.bold(`[Nauquu] Account ${stt} | User: ${name}, UE: ${balance.ue?.amount}, Usdt: ${balance.usdt?.amount}, Diamond: ${balance.diamond?.amount}`));
 			await getEgg(stt, axios, token)
 			let refList = []
 			let startId = ""
 			let conti = true
-			let len = 19
 			while (true) {
 				const refs = await getRefs(stt, axios, token, startId)
-				for (const [index, ref] of refs.entries())  {
-					if (ref.flag == 0) {
-						refList.push(ref)
-					} else {
-						len = index
-						conti = false
-						break;
+				if (refs) {
+					for (const ref of refs)  {
+						if (ref.flag == 0) {
+							refList.push(ref)
+						} else {
+							conti = false
+							break;
+						}
 					}
+				} else {
+					break;
 				}
-				startId = refs[len].id
 				if (conti == false) break;
+				startId = refs[19].id
 			}
 			if (refList) {
 				for (let i = refList.length - 1; i>=0; i--) {
