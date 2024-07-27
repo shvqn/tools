@@ -62,3 +62,10 @@
 - Auto collect ref
 ## Rovex
 - Auto trade
+## [Banana](https://t.me/OfficialBananaBot/banana?startapp=referral=5722VF5)
+- Auto claim
+- Auto tap
+- Auto harvest
+- Auto claim ref
+- Auto quest and claim quest
+- Auto equip max peel banana
