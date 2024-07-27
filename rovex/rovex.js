@@ -10,9 +10,9 @@ const proxies = getData("proxy.txt");
 let timeRerun = 10; //phút time nghỉ mỗi lượt chạy
 let numberThread = 3; // số luồng chạy /1 lần 
 
-const priceToBuy = "0.00001"
+const priceToBuy = "0.00001" //usdt
 const coin = "pepe"
-const minToSell = "100000"
+const minToSell = "100000" //pepe
 
 function createAxiosInstance(proxy) {
 	return new AxiosHelpers({
@@ -99,7 +99,7 @@ async function buy(stt, axios, token, amount)
 		console.log(`[*] Account ${stt} | buy err: ${e}`);
 	}
 }
-async function sell(stt, axios, token, amount, id)
+async function sell(stt, axios, token, amount, id, price)
 {
 	try{
 		const headers = {};
@@ -113,7 +113,8 @@ async function sell(stt, axios, token, amount, id)
 
 		const response = await axios.post('https://taadu-api.hivehubs.app/api/order/take', payload, { headers: headers });
 		if (!response.data.code && response.status == 200) {
-			console.log(cyan.bold(`[Nauquu] Account ${stt} | Sell ${amount} Price: usdt`));
+			console.log(cyan.bold(`[Nauquu] Account ${stt} | Sell ${amount} Price: ${price} usdt`));
+			console.log(green.bold(`[Nauquu] Account ${stt} | Earned ${amount*(price-priceToBuy)} usdt`));
 			return true
         } else {
 			console.log(blue.bold(`[Nauquu] Account ${stt} | ${response.data.message}`));
@@ -172,7 +173,7 @@ async function main(stt, axios, account) {
 							console.log(cyan.bold(`[Nauquu] Account ${stt} | Checking Price: ${price.price}, Amount: ${price.amount_cur}/${price.amount_max}`));
 							if (price.amount_max - price.amount_cur >= minToSell && price.price > priceToBuy){
 								amount = (price.amount_max - price.amount_cur > coinAmount) ? coinAmount : price.amount_max - price.amount_cur;
-								const sellSuccess = await sell(stt, axios, token, amount , price.id)
+								const sellSuccess = await sell(stt, axios, token, amount , price.id, price.price)
 								if (sellSuccess) {
 									if (amount!=coinAmount) {
 										coinAmount =- price.amount_max - price.amount_cur
