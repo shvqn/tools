@@ -13,6 +13,7 @@ let numberThread = 3; // số luồng chạy /1 lần
 const priceToBuy = "0.00001" //usdt
 const coin = "pepe"
 const minToSell = "100000" //pepe
+let totalEarn = 0
 
 function createAxiosInstance(proxy) {
 	return new AxiosHelpers({
@@ -115,6 +116,8 @@ async function sell(stt, axios, token, amount, id, price)
 		if (!response.data.code && response.status == 200) {
 			console.log(cyan.bold(`[Nauquu] Account ${stt} | Sell ${amount} Price: ${price} usdt`));
 			console.log(green.bold(`[Nauquu] Account ${stt} | Earned ${amount*(price-priceToBuy)} usdt`));
+			totalEarn =+ amount*(price-priceToBuy)
+			console.log(yellow.bold(`[Nauquu] Account ${stt} | Total Earned ${totalEarn} usdt`));
 			return true
         } else {
 			console.log(blue.bold(`[Nauquu] Account ${stt} | ${response.data.message}`));
