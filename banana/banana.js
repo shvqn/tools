@@ -109,7 +109,7 @@ async function havest(stt, axios, token)
 		console.log(`[Nauquu] Account ${stt} | havest err: ${e}`);
 	}
 }
-async function getBananaList(stt, axios, token)
+async function getBananaList(stt, axios, token,equip_banana_id)
 {
 	try{
 		const headers ={
@@ -123,7 +123,7 @@ async function getBananaList(stt, axios, token)
 			const maxPeelBanana = bananaOwner.reduce((max, banana) => 
 				banana.daily_peel_limit > max.daily_peel_limit ? banana : max, bananaOwner[0]);
 			if (equip_banana_id != maxPeelBanana.banana_id) {
-				await equipBanana(stt, axios, token)
+				await equipBanana(stt, axios, token, maxPeelBanana.banana_id, maxPeelBanana.name)
 			}
 			console.log(blue.bold(`[Nauquu] Account ${stt} | Claim .....`));
 		}
@@ -131,16 +131,19 @@ async function getBananaList(stt, axios, token)
 		console.log(`[Nauquu] Account ${stt} | getBananaList err: ${e}`);
 	}
 }
-async function equipBanana(stt, axios, token)
+async function equipBanana(stt, axios, token, id, name)
 {
 	try{
 		const headers ={
 			authorization: token,
 		}
-		const response = await axios.post(`https://interface.carv.io/banana/do_lottery`, {headers});
-		if (response.data.code ==0 && response.status == 200) {
-			console.log(blue.bold(`[Nauquu] Account ${stt} | Claim .....`));
-		} else console.log(blue.bold(`[Nauquu] Account ${stt} | ${response.data.msg}`));
+		const payload ={
+			bananaId: id
+		}
+		const response = await axios.post(`https://interface.carv.io/banana/do_equip`,payload, {headers});
+		if (response && response.status == 200) {
+			console.log(cyan.bold(`[Nauquu] Account ${stt} | Equip banana ${name}`));
+		}
 	}catch(e){
 		console.log(`[Nauquu] Account ${stt} | equipBanana err: ${e}`);
 	}
@@ -164,7 +167,7 @@ async function main(stt, account, axios) {
 			if (lottery_info.remain_lottery_count) {
 				await havest(stt, axios, token)
 			}
-			await getBananaList(stt, axios, token)
+			await getBananaList(stt, axios, token, equip_banana_id)
 			console.log(cyan.bold(`[Nauquu] Account ${stt} | Done!`));
 		}
 	} catch (e) {
