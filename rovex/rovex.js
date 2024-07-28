@@ -4,18 +4,15 @@ import { cyan, yellow, blue, green } from 'console-log-colors';
 import AxiosHelpers from "./helpers/axiosHelper.js";
 // import moment from 'moment-timezone';
 
-const accounts = getData("data_rovex.txt");
-const proxies = getData("proxy.txt");
+let timeRerun = 5; //phút time nghỉ mỗi lượt chạy
 
-let timeRerun = 10; //phút time nghỉ mỗi lượt chạy
-let numberThread = 3; // số luồng chạy /1 lần 
-
-const priceToBuy = "0.00001" //usdt
+const priceToBuy = "0.0000108" //usdt
+const priceToSell = "0.000015"
 const coin = "pepe"
 const minToSell = "100000" //pepe
-let totalEarn = 0
+let totalEarn = 2.08
 
-function createAxiosInstance(proxy) {
+function createAxiosInstance() {
 	return new AxiosHelpers({
 		headers: {
 			'accept': 'application/json, text/plain, */*',
@@ -34,12 +31,11 @@ function createAxiosInstance(proxy) {
 			'sec-gpc': '1',
 			'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
 		},
-		proxy: proxy ? proxy : false,
 	});
 }
 //end config
 // main
-async function getToken(stt, axios, query)
+async function getToken(axios, query)
 {
 	try{
 		const headers = {};
@@ -54,10 +50,10 @@ async function getToken(stt, axios, query)
 			return response.data.data.token.token;
 		} 
 	}catch(e){
-		console.log(`[*] Account ${stt} | getToken err: ${e}`);
+		console.log(`[*] getToken err: ${e}`);
 	}
 }
-async function getAssets(stt, axios, token)
+async function getAssets(axios, token)
 {
 	try{
 		const headers = {};
@@ -75,10 +71,10 @@ async function getAssets(stt, axios, token)
 			return response.data.data.rows;
         }
 	}catch(e){
-		console.log(`[*] Account ${stt} | getAssets err: ${e}`);
+		console.log(`[*] getAssets err: ${e}`);
 	}
 }
-async function buy(stt, axios, token, amount)
+async function buy(axios, token, amount)
 {
 	try{
 		const headers = {};
@@ -93,14 +89,14 @@ async function buy(stt, axios, token, amount)
 
 		const response = await axios.post('https://taadu-api.hivehubs.app/api/order/create', payload, { headers: headers });
 		if (!response.data.code && response.status == 200) {
-			console.log(cyan.bold(`[Nauquu] Account ${stt} | Buy ${amount} ${coin} Price: ${priceToBuy}usdt`));
-			console.log(cyan.bold(`[Nauquu] Account ${stt} | Waiting for the seller`));
-        } else console.log(blue.bold(`[Nauquu] Account ${stt} | ${response.data.message}`));
+			console.log(cyan.bold(`[Nauquu] Buy ${amount} ${coin} Price: ${priceToBuy}usdt`));
+			console.log(cyan.bold(`[Nauquu] Waiting for the seller`));
+        } else console.log(blue.bold(`[Nauquu] ${response.data.message}`));
 	}catch(e){
-		console.log(`[*] Account ${stt} | buy err: ${e}`);
+		console.log(`[*] buy err: ${e}`);
 	}
 }
-async function sell(stt, axios, token, amount, id, price)
+async function sell(axios, token, amount, id, price)
 {
 	try{
 		const headers = {};
@@ -114,21 +110,20 @@ async function sell(stt, axios, token, amount, id, price)
 
 		const response = await axios.post('https://taadu-api.hivehubs.app/api/order/take', payload, { headers: headers });
 		if (!response.data.code && response.status == 200) {
-			console.log(cyan.bold(`[Nauquu] Account ${stt} | Sell ${amount} Price: ${price} usdt`));
-			console.log(green.bold(`[Nauquu] Account ${stt} | Earned ${amount*(price-priceToBuy)} usdt`));
-			totalEarn =+ amount*(price-priceToBuy)
-			console.log(yellow.bold(`[Nauquu] Account ${stt} | Total Earned ${totalEarn} usdt`));
+			console.log(cyan.bold(`[Nauquu] Sell ${amount} Price: ${price} usdt`));
+			console.log(green.bold(`[Nauquu] Earned ${amount*(price-priceToBuy)} usdt`));
+			totalEarn = totalEarn + amount*(price-priceToBuy)
 			return true
         } else {
-			console.log(blue.bold(`[Nauquu] Account ${stt} | ${response.data.message}`));
+			console.log(blue.bold(`[Nauquu] ${response.data.message}`));
 			return false
 		}
 	}catch(e){
-		console.log(`[*] Account ${stt} | buy err: ${e}`);
+		console.log(`[*] buy err: ${e}`);
 		return false
 	}
 }
-async function getListPrice(stt, axios, token, startId)
+async function getListPrice(axios, token, startId)
 {
 	try{
 		const headers = {};
@@ -146,37 +141,39 @@ async function getListPrice(stt, axios, token, startId)
 			return response.data.data
         }
 	}catch(e){
-		console.log(`[*] Account ${stt} | buy err: ${e}`);
+		console.log(`[*] buy err: ${e}`);
 	}
 }
 //
-async function main(stt, axios, account) {
+async function main() {
 	try {
+		const account = "https://swap.rovex.io/#tgWebAppData=query_id%3DAAHlCPFfAgAAAOUI8V-9Jsdt%26user%3D%257B%2522id%2522%253A5904599269%252C%2522first_name%2522%253A%2522Nauquu%2522%252C%2522last_name%2522%253A%2522%2522%252C%2522username%2522%253A%2522Nauquu%2522%252C%2522language_code%2522%253A%2522en%2522%252C%2522allows_write_to_pm%2522%253Atrue%257D%26auth_date%3D1721958865%26hash%3Da61343d0865d21a74d7316987b4233214b919d97c372c73fc434904e602050bb&tgWebAppVersion=7.6&tgWebAppPlatform=weba&tgWebAppThemeParams=%7B%22bg_color%22%3A%22%23212121%22%2C%22text_color%22%3A%22%23ffffff%22%2C%22hint_color%22%3A%22%23aaaaaa%22%2C%22link_color%22%3A%22%238774e1%22%2C%22button_color%22%3A%22%238774e1%22%2C%22button_text_color%22%3A%22%23ffffff%22%2C%22secondary_bg_color%22%3A%22%230f0f0f%22%2C%22header_bg_color%22%3A%22%23212121%22%2C%22accent_text_color%22%3A%22%238774e1%22%2C%22section_bg_color%22%3A%22%23212121%22%2C%22section_header_text_color%22%3A%22%23aaaaaa%22%2C%22subtitle_text_color%22%3A%22%23aaaaaa%22%2C%22destructive_text_color%22%3A%22%23e53935%22%7D"
+		const axios = createAxiosInstance()
 		let urlData = querystring.unescape(account).split('tgWebAppData=')[1].split('&tgWebAppVersion')[0];
-		console.log(cyan.bold(`[Nauquu] Account ${stt} | Login...`));
+		console.log(cyan.bold(`[Nauquu] Login...`));
 		await sleep(5);
-		let token = await getToken(stt, axios, urlData);
+		let token = await getToken(axios, urlData);
 		if(token){
-			const balance = await getAssets(stt, axios, token)
+			const balance = await getAssets(axios, token)
 			let amounts = balance.map(item => {
 				if (item.amount != 0){
 					return `${item.amount} ${item.a_type},`
 				}
 			}).join(' ');
-			console.log(green.bold(`[Nauquu] Account ${stt} | Balance: ${amounts}`));
+			console.log(green.bold(`[Nauquu] Balance: ${amounts}`));
 			let start_id = ""
 			let amount
 			let finish = false
 			let coinAmount = balance.find(item => item.a_type == coin).amount
 			if (coinAmount>0){
 				while (true) {
-					const priceList = await getListPrice(stt, axios,token, start_id)
+					const priceList = await getListPrice(axios,token, start_id)
 					if (priceList) {
 						for (const price of priceList) {
-							console.log(cyan.bold(`[Nauquu] Account ${stt} | Checking Price: ${price.price}, Amount: ${price.amount_cur}/${price.amount_max}`));
-							if (price.amount_max - price.amount_cur >= minToSell && price.price > priceToBuy){
+							console.log(cyan.bold(`[Nauquu] Checking Price: ${price.price}, Amount: ${price.amount_cur}/${price.amount_max}`));
+							if (price.amount_max - price.amount_cur >= minToSell && price.price >= priceToSell){
 								amount = (price.amount_max - price.amount_cur > coinAmount) ? coinAmount : price.amount_max - price.amount_cur;
-								const sellSuccess = await sell(stt, axios, token, amount , price.id, price.price)
+								const sellSuccess = await sell(axios, token, amount , price.id, price.price)
 								if (sellSuccess) {
 									if (amount!=coinAmount) {
 										coinAmount =- price.amount_max - price.amount_cur
@@ -185,7 +182,7 @@ async function main(stt, axios, account) {
 										break;
 									}
 								}
-							} else if (price.price < priceToBuy) {
+							} else if (price.price < priceToSell) {
 								finish = true
 								break;
 							}
@@ -194,13 +191,13 @@ async function main(stt, axios, account) {
 					if (finish) break;
 					start_id = priceList[priceList.length-1].id
 				}
-			} else console.log(yellow.bold(`[Nauquu] Account ${stt} | Out of ${coin}`));
+			} else console.log(yellow.bold(`[Nauquu] Out of ${coin}`));
 			if (Math.floor(balance.find(item => item.a_type == "usdt").amount / priceToBuy) > minToSell) {
-				await buy(stt, axios, token, Math.floor(balance.find(item => item.a_type == "usdt").amount / priceToBuy))
+				await buy(axios, token, Math.floor(balance.find(item => item.a_type == "usdt").amount / priceToBuy))
 			}
 		}
-
-		console.log(cyan.bold(`[Nauquu] Account ${stt} | Done!`));
+		console.log(yellow.bold(`[Nauquu] Total Earned ${totalEarn} usdt`));
+		console.log(cyan.bold(`[Nauquu] Done!`));
 
 	} catch (e) {
 		console.log(`Main Err: ${e}`);
@@ -208,63 +205,11 @@ async function main(stt, axios, account) {
 }
 // end main
 
-async function runMulti() {
-	const createChunks = (array, size) => {
-			const result = [];
-			for (let i = 0; i < array.length; i += size) {
-					result.push(array.slice(i, i + size));
-			}
-			return result;
-	};
-	let countPrx = proxies.length;
-	if(numberThread > countPrx) {
-			if(countPrx >=30){
-					numberThread = 30;
-			}else if(countPrx > 0){
-					numberThread = countPrx
-			}
-	}
-	const accountChunks = createChunks(accounts, numberThread);
-
-	for (const chunk of accountChunks) {
-			let proxy = null;
-			const tasks = chunk.map(async (account) => {
-					const globalIndex = accounts.indexOf(account);
-
-					if (proxies.length > 0) {
-							proxy = proxies[globalIndex % proxies.length];
-					}
-
-		if (account) {
-			const axiosInstance = createAxiosInstance(proxy);
-			let stt = Number(globalIndex) + Number(1);
-			let checkIp = await checkIP(axiosInstance);
-			console.log(`[Nauquu] Account ${stt} | Run at IP: ${checkIp}`);
-			await main(stt, axiosInstance, account);
-		}
-	})
-	console.log(`Số luồng chạy: ${tasks.length} ...`);
-	await Promise.all(tasks);
-}
-}
-
 // default
-async function checkIP(axios) {
-	try {
-		const rs = await axios.get("https://api.myip.com");
-		const ip = rs.data?.ip;
-		const country = rs.data?.country;
-		return `${ip} - Country: ${country}`;
-	} catch (err) {
-		console.log("err checkip: ", err);
-		return null;
-	}
-}
-
-async function mainLoopMutil() {
+async function mainLoop() {
 	while (true) {
-		await runMulti();
+		await main();
 		await countdown(timeRerun * 60);
 	}
 }
-mainLoopMutil()
+mainLoop()
