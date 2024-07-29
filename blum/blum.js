@@ -69,7 +69,7 @@ async function claimFarm(stt, axios, token)
 		const headers = {
 			"Authorization": `Bearer ${token}`,
 		}
-		const response = await axios.post(`https://game-domain.blum.codes/api/v1/farming/claim`, {headers});
+		const response = await axios.post(`https://game-domain.blum.codes/api/v1/farming/claim`,{}, {headers});
 		if (response && response.status == 200) {
 			console.log(blue.bold(`[@Nauquu] Account ${stt} | Claim farm success, Balance: ${response.data.availableBalance} `));
 		}
@@ -84,7 +84,7 @@ async function startFarm(stt, axios, token)
 		const headers = {
 			"Authorization": `Bearer ${token}`,
 		}
-		const response = await axios.post(`https://game-domain.blum.codes/api/v1/farming/start`, {headers});
+		const response = await axios.post(`https://game-domain.blum.codes/api/v1/farming/start`,{}, {headers});
 		if (response && response.status == 200) {
 			console.log(blue.bold(`[@Nauquu] Account ${stt} | Start farm success `));
 		}
