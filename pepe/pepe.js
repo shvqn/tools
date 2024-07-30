@@ -143,7 +143,7 @@ async function main(stt, account, axios) {
 				await claim(stt, account, axios, i)
 				await sleep(5*60)
 			}
-			if (amounts.pepe > 2000) await getFreeWithdrawData(stt, token, axios)
+			if (amounts.pepe > 2000) await getFreeWithdrawData(stt, account, axios)
 		}
 		console.log(cyan.bold(`[Nauquu] Account ${stt} | Done!`));
 
@@ -162,14 +162,14 @@ async function runMulti() {
         }
         return result;
     };
-    let countPrx = proxies.length;
-    if(numberThread > countPrx) {
-			numberThread = countPrx
-    }
+    // let countPrx = proxies.length;
+    // if(numberThread > countPrx) {
+	// 		numberThread = countPrx
+    // }
     const accountChunks = createChunks(accounts, numberThread);
     for (const chunk of accountChunks) {
         let proxy = null;
-        const tasks = chunk.map(async (account, index) => {
+        const tasks = chunk.map(async (account) => {
             const globalIndex = accounts.indexOf(account);
 
             if (proxies.length > 0) {
@@ -185,7 +185,7 @@ async function runMulti() {
 				}
 			})
 	
-		console.log(`Số luồng chạy: ${tasks.length} ...`);
+		console.log(`[Nauquu] Thread: ${tasks.length} ...`);
 
 		await Promise.all(tasks);
 	}
