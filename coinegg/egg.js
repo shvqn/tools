@@ -8,19 +8,7 @@ const accounts = getData("data_coinegg.txt");
 const proxies = getData("proxy.txt");
 
 let timeRerun = 10; //phút time nghỉ mỗi lượt chạy
-let numberThread = 3; // số luồng chạy /1 lần 
-
-// 
-function formatTimeToUTC7(date) {
-    const utcOffset = 7; // UTC+7
-    const utc7Date = new Date(date.getTime() + utcOffset * 60 * 60 * 1000);
-
-    const hours = String(utc7Date.getUTCHours()).padStart(2, '0');
-    const minutes = String(utc7Date.getUTCMinutes()).padStart(2, '0');
-    const seconds = String(utc7Date.getUTCSeconds()).padStart(2, '0');
-
-    return `${hours}:${minutes}:${seconds}`;
-}
+let numberThread = 1; // số luồng chạy /1 lần 
 
 function createAxiosInstance(proxy) {
 	return new AxiosHelpers({
@@ -199,6 +187,7 @@ async function main(stt, axios, account) {
 				startId = refs[len].id
 				if (conti == false) break;
 			}
+			console.log(refList.length);
 			if (refList) {
 				for (let i = refList.length - 1; i>=0; i--) {
 		    		const refAvai = await collectRefs(stt, axios, token, refList[i].id)
