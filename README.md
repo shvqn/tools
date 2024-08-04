@@ -3,10 +3,9 @@
 - Auto farm
 - Auto upgrade
 - Auto boost
-## [ArenaGames](https://t.me/Arenavsbot?start=ref_27E7FzdsR8WeTmALFiUgLJ)
+## [ArenaGames](https://t.me/Arenavsbot?start=ref_27E7FzdsR8WeTmALFiUgLJ) (Token expired)
 - Auto claim ref
 - Auto farm
-## [Babydoge](https://t.me/BabyDogePAWS_Bot?start=r_5904599269)
 ## [Blum](https://t.me/BlumCryptoBot/app?startapp=ref_8ZHWL6qvRI)
 - Auto farm
 - Auto play game
@@ -49,7 +48,7 @@
 ## [Tomarket](https://t.me/Tomarket_ai_bot/app?startapp=00002iMg) 
 ## [Yescoin](https://t.me/theYescoin_bot/Yescoin?startapp=RqQgP1)
 - Auto tap
-## [Onux](https://t.me/onus_tap_tap_tap_bot/join?startapp=1725363482101)
+## [Onux](https://t.me/onus_tap_tap_tap_bot/join?startapp=1725363482101) (Error)
 - Auto claim ref
 - Auto farm
 - Auto tap
@@ -60,8 +59,6 @@
 ## [UECoin](https://t.me/UEEx_Miner_bot/UEB_Miner_Bot?startapp=kBNoWEHfEAB8S9rmMSA)
 - Auto collect coin
 - Auto collect ref
-## Rovex
-- Auto trade
 ## [Banana](https://t.me/OfficialBananaBot/banana?startapp=referral=5722VF5)
 - Auto claim
 - Auto tap
