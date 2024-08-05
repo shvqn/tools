@@ -172,20 +172,22 @@ async function main(stt, axios, account) {
 			let refList = []
 			let startId = ""
 			let conti = true
-			let len = 19
 			while (true) {
 				const refs = await getRefs(stt, axios, token, startId)
-				for (const [index, ref] of refs.entries())  {
-					if (ref.flag == 0) {
-						refList.push(ref)
-					} else {
-						len = index
-						conti = false
-						break;
+				if (refs.length){
+					for (const ref of refs)  {
+						if (ref.flag == 0) {
+							refList.push(ref)
+						} else {
+							conti = false
+							break;
+						}
 					}
+				} else {
+					break;
 				}
-				startId = refs[len].id
 				if (conti == false) break;
+				startId = refs[19].id
 			}
 			console.log(refList.length);
 			if (refList) {
