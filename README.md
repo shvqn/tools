@@ -70,3 +70,7 @@
 - Auto claim ref
 - Auto quest and claim quest
 - Auto equip max peel banana
+## [Mhaya](https://t.me/mhaya_bot?start=5904599269)
+- Auto roll
+- Auto draw
+- Auto task

@@ -1,0 +1,16 @@
+{
+  "author": "Nauquu",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.2",
+    "chromedriver": "^126.0.5",
+    "console-log-colors": "^0.5.0",
+    "https-proxy-agent": "^7.0.4",
+    "jsdom": "^24.1.0",
+    "moment-timezone": "^0.5.45",
+    "querystring": "^0.2.1",
+    "tunnel": "^0.0.6",
+    "uuid": "^9.0.1"
+  },
+  "type": "module"
+}
