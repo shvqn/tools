@@ -45,8 +45,10 @@
 ## [Timefarm](https://t.me/TimeFarmCryptoBot?start=xlZ5oruZ4pvXAtiT)
 - Auto claim ref
 - Auto farm
+- Auto task
 - Auto stake
 - Auto upgrade clock
+- Get iframe 1 time per month
 ## [Tomarket](https://t.me/Tomarket_ai_bot/app?startapp=00002iMg) 
 ## [Yescoin](https://t.me/theYescoin_bot/Yescoin?startapp=RqQgP1)
 - Auto tap

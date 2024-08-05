@@ -1,5 +1,5 @@
 import querystring from 'querystring';
-import { countdown, randomInt, sleep, getData} from './utils.js';
+import { countdown, randomInt, sleep, getData, formatTimeToUTC7} from './utils.js';
 import { cyan, yellow, blue, green, magenta, red, gray } from 'console-log-colors';
 import AxiosHelpers from "./helpers/axiosHelper.js";
 
@@ -7,17 +7,15 @@ import AxiosHelpers from "./helpers/axiosHelper.js";
 const accounts = getData("token.txt");
 const proxies = getData("proxy.txt");
 
-let timeRerun = 4*60; //phút time nghỉ mỗi lượt chạy
+let timeRerun = 6*60; //phút time nghỉ mỗi lượt chạy
 let numberThread = 1; // số luồng chạy /1 lần 
 let maxRetries = 3;
 
 let auto_upgrade_clock = true; //auto upgrade clock
-let max_level_clock = 6; // max level clock  (max = 3)
 
 let auto_stake = true 
 let stake_type = "1"
 let stake_during = "3"
-const token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjI4NzExNzUsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3MjI3ODQ3NzUsImF1ZCI6InRnLmFpLmpvYnMiLCJpc3MiOiJ0Zy5haS5qb2JzIiwic3ViIjoiNTkwNDU5OTI2OSIsImp0aSI6ImNkZDM1MThsemZwa29wMiJ9.UP_XqRtXTdkFcfEC8ulgzc-2FSeC7pIzHHA4t9hvVup4SAbwQaG2PfWk_FTYw_MH006NtAR2mvQmIXFEnm4bvIXUj54DyDhQMkAAvLM4VNonaKE8R6TzyiBQMFKnV6FCZafytoaZqyVE17H_OIsmY8O9-I2TUq-5tF19ygoScQHtL_mkozkgIhZwrcUMM2wRa7tz7uHWyltf6gfi2TiJsSSpGrZuuOIEZGen1reXGf6xxe_wcJqfwV67DY_-dpGRhwwQoitQjztMcuZVgkakwEDNFQGRPfo_kZyEL-5YpmvpoetUKAI4ugFydb5-piuhGLJWmdG5rt8rjDDOwrQ7eAiNN-QWXunTNwt6C8s3FG8l_-noUqIGMeSwn18_lv2-OyC8NQNt4daKCx9wOVL8s8sGUkVJynR0oRQIHhrG8gg7Yio3WRVPuT6219HTNa_Cb9Bx6LY-F-wMCTwoRXelzw2obnSTka1yCyfl2lXXyt6xz2mF13X3hDfLNKtGQTRRwvaimIPBdKkg-SdFFm-9hqif6_s2cIcnlTqtNSv11xpSX0vNYxpbwlxMGiEqA0LNcAt3H1iSaY1gnFy2f4fZLhvRZtKCFhx38TdBUM6GxRowmGkFRxnU0xaPkyYQkUb17qEqPZTVkcncRw0a_GM8XwNPSQaTIgqykE7JnXjPuyM"
 switch (stake_type) {
 	case "1":
 		stake_during = "3"
@@ -33,7 +31,7 @@ switch (stake_type) {
 }
 // 
 
-function createAxiosInstance(proxy) {
+function createAxiosInstance(proxy, token) {
 	return new AxiosHelpers({
     headers: {
       'accept': '*/*',
@@ -199,10 +197,10 @@ async function levelUpgrade(stt, axios) {
 	try {
 		let response = await axios.post(`https://tg-bot-tap.laborx.io/api/v1/me/level/upgrade`);
 		if (response && response.status == 200) {
-			return response.data;
+			console.log(green.bold(`[Nauquu.Timefarm] Account ${stt} | Upgrade Clock`));
 		}
 	} catch (e) {
-		console.log(red.bold(`[Nauquu.Timefarm] Account ${stt} | claimTask err: ${e}`));
+		return null
 	}
 }
 //
@@ -232,10 +230,11 @@ async function main(stt, axios)
 						await claimFarm(stt, axios)
 						await sleep(randomInt(2,5))
 						await startFarm(stt, axios)
-					}
+					} else console.log(cyan.bold(`[Nauquu.Timefarm] Account ${stt} | Can claim at ${formatTimeToUTC7(farmFinishAt)}`));
+					
 				}
 				await getBalanceInfo(stt, axios);
-	
+				
 				let subDone1 = false;
 				let getTask = await getTaskInfo(stt, axios);
 				if(getTask) {
@@ -292,19 +291,7 @@ async function main(stt, axios)
 						await staking(stt, axios, farmInfo.balance)
 					}
 				}
-				if(auto_upgrade_clock){
-					let { level } = data;
-					if(level < max_level_clock && level != 4){
-						for (let i = level; i < max_level_clock; i++) {
-							await sleep(randomInt(1,4));
-							let upClock = await levelUpgrade(stt, axios);
-							if(upClock) {
-								console.log(green.bold(`[Nauquu.Timefarm] Account ${stt} | Upgrade Clock Lvl: ${level + i}`));
-								await sleep(randomInt(2,5));
-							}
-						}
-					}
-				}
+				if(auto_upgrade_clock) await levelUpgrade(stt, axios);
 				console.log(blue.bold(`[Nauquu.Timefarm] Account ${stt} | Done!`));
 				break;
 			}

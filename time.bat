@@ -1,5 +1,5 @@
 @echo on
-cd time
+cd timefarm
 
 node timefarm.js
 

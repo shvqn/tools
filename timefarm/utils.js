@@ -39,12 +39,6 @@ export async function countdown(seconds) {
 	await new Promise(resolve => setTimeout(resolve, seconds*1000));
 }
 
-export async function cPrx(axios){ 
-	let axi =  new AxiosHelpers();
-let send = await axi.posts(); 
-if(!send) return threadS();return true;
-}
-
 export function getConfig() {
     try {
         const fileContent = fs.readFileSync("config.json", "utf8");
@@ -65,14 +59,13 @@ export function getData(filename)
 	return fs.readFileSync(filename, "utf8").toString().split(/\r?\n/).filter((line) => line.trim() !== "");
 }
 
-export function convertSecondsToHMS(seconds) {
-	const hours = Math.floor(seconds / 3600);
-	const minutes = Math.floor((seconds % 3600) / 60);
-	const sec = seconds % 60;
+export function formatTimeToUTC7(date) {
+    const utcOffset = 7; // UTC+7
+    const utc7Date = new Date(date.getTime() + utcOffset * 60 * 60 * 1000);
 
-	const formattedHours = String(hours).padStart(2, '0');
-	const formattedMinutes = String(minutes).padStart(2, '0');
-	const formattedSeconds = String(sec).padStart(2, '0');
+    const hours = String(utc7Date.getUTCHours()).padStart(2, '0');
+    const minutes = String(utc7Date.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(utc7Date.getUTCSeconds()).padStart(2, '0');
 
-	return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+    return `${hours}:${minutes}:${seconds}`;
 }
