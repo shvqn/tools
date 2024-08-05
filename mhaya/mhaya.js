@@ -6,7 +6,7 @@ import AxiosHelpers from "./helpers/axiosHelper.js";
 const accounts = getData("data.txt");
 const proxies = getData("proxy.txt");
 
-let timeRerun = 24*60; //phút time nghỉ mỗi lượt chạy
+let timeRerun = 4*60; //phút time nghỉ mỗi lượt chạy
 let numberThread = 1; // số luồng chạy /1 lần 
 
 function createAxiosInstance(proxy) {
