@@ -1,6 +1,6 @@
 import querystring from 'querystring';
 import { countdown, randomInt, sleep, getData, formatTimeToUTC7 } from './utils.js';
-import { cyan, yellow, blue, green } from 'console-log-colors';
+import { cyan, yellow, blue, green, magenta, gray, red } from 'console-log-colors';
 import AxiosHelpers from "./helpers/axiosHelper.js";
 
 const accounts = getData("data_banana.txt");
@@ -50,7 +50,7 @@ async function getToken(stt, axios, query)
 			return response.data.data.token;
 		}
 	}catch(e){
-		console.log(`[Nauquu] Account ${stt} | getToken err: ${e}`);
+		console.log(red.bold(`[Nauquu.Banana] Account ${stt} | getToken err: ${e}`));
 	}
 }
 async function getUserData(stt, axios, token)
@@ -64,7 +64,7 @@ async function getUserData(stt, axios, token)
 			return response.data.data;
 		}
 	}catch(e){
-		console.log(`[Nauquu] Account ${stt} | getUserData err: ${e}`);
+		console.log(red.bold(`[Nauquu.Banana] Account ${stt} | getUserData err: ${e}`));
 	}
 }
 async function click(stt, axios, token, count)
@@ -78,10 +78,10 @@ async function click(stt, axios, token, count)
 		}
 		const response = await axios.post(`https://interface.carv.io/banana/do_click`,payload, {headers});
 		if (response && response.status == 200) {
-			console.log(green.bold(`[Nauquu] Account ${stt} | Clicked earn ${response.data.data.peel} peel`));
+			console.log(green.bold(`[Nauquu.Banana] Account ${stt} | Clicked earn ${response.data.data.peel} peel`));
 		}
 	}catch(e){
-		console.log(`[Nauquu] Account ${stt} | click err: ${e}`);
+		console.log(red.bold(`[Nauquu.Banana] Account ${stt} | click err: ${e}`));
 	}
 }
 async function claimBanana(stt, axios, token)
@@ -98,7 +98,7 @@ async function claimBanana(stt, axios, token)
 			return response.data.data;
 		}
 	}catch(e){
-		console.log(`[Nauquu] Account ${stt} | claimBanana err: ${e}`);
+		console.log(red.bold(`[Nauquu.Banana] Account ${stt} | claimBanana err: ${e}`));
 	}
 }
 async function havest(stt, axios, token)
@@ -109,11 +109,29 @@ async function havest(stt, axios, token)
 		}
 		const response = await axios.post(`https://interface.carv.io/banana/do_lottery`,{}, {headers});
 		if (response.data.code ==0 && response.status == 200) {
-			console.log(blue.bold(`[Nauquu] Account ${stt} | Claimed ${response.data.data.name} ${response.data.data.daily_peel_limit} peel`));
-		} else console.log(blue.bold(`[Nauquu] Account ${stt} | ${response.data.msg}`));
+			console.log(blue.bold(`[Nauquu.Banana] Account ${stt} | Claimed ${response.data.data.name} ${response.data.data.daily_peel_limit} peel`));
+			await doShare(stt, axios, token, response.data.data.banana_id)
+		} else console.log(blue.bold(`[Nauquu.Banana] Account ${stt} | ${response.data.msg}`));
 	}catch(e){
-		console.log(`[Nauquu] Account ${stt} | havest err: ${e}`);
+		console.log(red.bold(`[Nauquu.Banana] Account ${stt} | havest err: ${e}`));
 		console.log(e.response.data);
+	}
+}
+async function doShare(stt, axios, token, bananaId)
+{
+	try{
+		const headers ={
+			authorization: token,
+		}
+		const payload = {
+			"banana_id": bananaId,
+		}
+		const response = await axios.post(`https://interface.carv.io/banana/do_share`,payload, {headers});
+		if (response.data.code ==0 && response.status == 200) {
+			console.log(blue.bold(`[Nauquu.Banana] Account ${stt} | Share ${response.data.msg}, Claimed ${response.data.data.peel} peel`));
+		}
+	}catch(e){
+		console.log(red.bold(`[Nauquu.Banana] Account ${stt} | doShare err: ${e}`));
 	}
 }
 async function getBananaList(stt, axios, token,equip_banana_id)
@@ -133,7 +151,7 @@ async function getBananaList(stt, axios, token,equip_banana_id)
 			}
 		}
 	}catch(e){
-		console.log(`[Nauquu] Account ${stt} | getBananaList err: ${e}`);
+		console.log(red.bold(`[Nauquu.Banana] Account ${stt} | getBananaList err: ${e}`));
 	}
 }
 async function equipBanana(stt, axios, token, id, name)
@@ -147,10 +165,10 @@ async function equipBanana(stt, axios, token, id, name)
 		}
 		const response = await axios.post(`https://interface.carv.io/banana/do_equip`,payload, {headers});
 		if (response && response.status == 200) {
-			console.log(cyan.bold(`[Nauquu] Account ${stt} | Equip banana ${name}`));
+			console.log(cyan.bold(`[Nauquu.Banana] Account ${stt} | Equip banana ${name}`));
 		}
 	}catch(e){
-		console.log(`[Nauquu] Account ${stt} | equipBanana err: ${e}`);
+		console.log(red.bold(`[Nauquu.Banana] Account ${stt} | equipBanana err: ${e}`));
 	}
 }
 async function getQuestList(stt, axios, token)
@@ -174,7 +192,7 @@ async function getQuestList(stt, axios, token)
 			if (response.data.data.is_claimed) await claimQuestBanana(stt, axios, token)
 		}
 	}catch(e){
-		console.log(`[Nauquu] Account ${stt} | getQuestList err: ${e}`);
+		console.log(red.bold(`[Nauquu.Banana] Account ${stt} | getQuestList err: ${e}`));
 	}
 }
 async function startQuest(stt, axios, token, id, name)
@@ -188,10 +206,10 @@ async function startQuest(stt, axios, token, id, name)
 		}
 		const response = await axios.post(`https://interface.carv.io/banana/achieve_quest`,payload, {headers});
 		if (response && response.status == 200) {
-			console.log(yellow.bold(`[Nauquu] Account ${stt} | Start ${name}`));
+			console.log(magenta.bold(`[Nauquu.Banana] Account ${stt} | Start ${name}`));
 		}
 	}catch(e){
-		console.log(`[Nauquu] Account ${stt} | startQuest err: ${e}`);
+		console.log(red.bold(`[Nauquu.Banana] Account ${stt} | startQuest err: ${e}`));
 	}
 }
 async function claimQuest(stt, axios, token, id)
@@ -205,10 +223,10 @@ async function claimQuest(stt, axios, token, id)
 		}
 		const response = await axios.post(`https://interface.carv.io/banana/claim_quest`,payload, {headers});
 		if (response && response.status == 200) {
-			console.log(cyan.bold(`[Nauquu] Account ${stt} | Claimed ${response.data.data.peel} peel`));
+			console.log(magenta.bold(`[Nauquu.Banana] Account ${stt} | Claimed ${response.data.data.peel} peel`));
 		}
 	}catch(e){
-		console.log(`[Nauquu] Account ${stt} | claimQuest err: ${e}`);
+		console.log(red.bold(`[Nauquu.Banana] Account ${stt} | claimQuest err: ${e}`));
 	}
 }
 async function claimQuestBanana(stt, axios, token)
@@ -219,10 +237,10 @@ async function claimQuestBanana(stt, axios, token)
 		}
 		const response = await axios.post(`https://interface.carv.io/banana/claim_quest_lottery`,{} ,{headers});
 		if (response && response.status == 200) {
-			console.log(cyan.bold(`[Nauquu] Account ${stt} | Claimed 1 banana from quest`));
+			console.log(magenta.bold(`[Nauquu.Banana] Account ${stt} | Claimed 1 banana from quest`));
 		}
 	}catch(e){
-		console.log(`[Nauquu] Account ${stt} | claimQuestBanana err: ${e}`);
+		console.log(red.bold(`[Nauquu.Banana] Account ${stt} | claimQuestBanana err: ${e}`));
 	}
 }
 async function getRefList(stt, axios, token)
@@ -238,7 +256,7 @@ async function getRefList(stt, axios, token)
 			}
 		}
 	}catch(e){
-		console.log(`[Nauquu] Account ${stt} | getRefList err: ${e}`);
+		console.log(red.bold(`[Nauquu.Banana] Account ${stt} | getRefList err: ${e}`));
 	}
 }
 async function claimRef(stt, axios, token)
@@ -252,10 +270,10 @@ async function claimRef(stt, axios, token)
 		}
 		const response = await axios.post(`https://interface.carv.io/banana/claim_lottery`,payload ,{headers});
 		if (response && response.status == 200) {
-			console.log(cyan.bold(`[Nauquu] Account ${stt} | Claimed 1 banana from ref`));
+			console.log(cyan.bold(`[Nauquu.Banana] Account ${stt} | Claimed 1 banana from ref`));
 		}
 	}catch(e){
-		console.log(`[Nauquu] Account ${stt} | claimRef err: ${e}`);
+		console.log(red.bold(`[Nauquu.Banana] Account ${stt} | claimRef err: ${e}`));
 	}
 }
 //
@@ -266,11 +284,11 @@ async function main(stt, account, axios) {
 		if (token){
 			const uData  = await getUserData(stt, axios, token)
 			const {username, peel, usdt, max_click_count, today_click_count, lottery_info, equip_banana_id} = uData
-			console.log(green.bold(`[Nauquu] Account ${stt} | User: ${username}, Balance: ${peel} peel, ${usdt} usdt, ${lottery_info.remain_lottery_count} banana, Taps: ${today_click_count}/${max_click_count}`));
+			console.log(green.bold(`[Nauquu.Banana] Account ${stt} | User: ${username}, Balance: ${peel} peel, ${usdt} usdt, ${lottery_info.remain_lottery_count} banana, Taps: ${today_click_count}/${max_click_count}`));
 			const nextClaimAt = new Date(lottery_info.last_countdown_start_time + lottery_info.countdown_interval*60*1000)
 			if (lottery_info.countdown_end) {
 				await claimBanana(stt, axios, token)
-			} else console.log(yellow.bold(`[Nauquu] Account ${stt} | Can claim at ${formatTimeToUTC7(nextClaimAt)}`));
+			} else console.log(yellow.bold(`[Nauquu.Banana] Account ${stt} | Can claim at ${formatTimeToUTC7(nextClaimAt)}`));
 			if (today_click_count<max_click_count) {
 				await click(stt,axios, token, max_click_count-today_click_count)
 			}
@@ -280,7 +298,7 @@ async function main(stt, account, axios) {
 				await havest(stt, axios, token)
 			}
 			await getBananaList(stt, axios, token, equip_banana_id)
-			console.log(cyan.bold(`[Nauquu] Account ${stt} | Done!`));
+			console.log(cyan.bold(`[Nauquu.Banana] Account ${stt} | Done!`));
 		}
 	} catch (e) {
 		console.log(`Main Err: ${e}`);
@@ -320,7 +338,7 @@ async function runMulti() {
 			const axiosInstance = createAxiosInstance(proxy);
 			let stt = Number(globalIndex) + Number(1);
 			let checkIp = await checkIP(axiosInstance);
-			console.log(`[Nauquu] Account ${stt} | Run at IP: ${checkIp}`);
+			console.log(gray.bold(`[Nauquu.Banana] Account ${stt} | IP: ${checkIp}`));
 			await main(stt, account, axiosInstance);
 		}
 	})
@@ -334,9 +352,9 @@ async function checkIP(axios) {
 		const rs = await axios.get("https://api.myip.com");
 		const ip = rs.data?.ip;
 		const country = rs.data?.country;
-		return `${ip} - Country: ${country}`;
+		return `${ip} - ${country}`;
 	} catch (err) {
-		console.log("err checkip: ", err);
+		console.log(red.bold(`Error IP`));
 		return null;
 	}
 }
