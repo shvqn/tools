@@ -54,11 +54,11 @@ async function login(stt, data, axios)
 			return response.data.data.token;
 		} else return null
 	}catch(e){
-		console.log(`[*] Account ${stt} | login err: ${e}`);
+		console.log(red.bold(`[Nauquu.Digiverse] Account ${stt} | login err: ${e}`));
 		return null
 	}
 }
-async function getStatus(stt, axios, token) {
+async function getStatus(stt, axios, token, id) {
 	try{ 
         const headers = {
 			authorization: token
@@ -67,11 +67,49 @@ async function getStatus(stt, axios, token) {
 		if (response && response.status == 200) {
 			const statusList = response.data.data
 			for (const boost of statusList) {
-				if (boost.current_count < boost.task_count) await buyBoost(stt, axios, token, id, type)
+				if (boost.current_count < boost.task_count) await buyBoost(stt, axios, token, id, boost.type)
 			}
 		} 
 	}catch(e){
-		console.log(`[*] Account ${stt} | getStatus err: ${e}`);
+		console.log(red.bold(`[Nauquu.Digiverse] Account ${stt} | getStatus err: ${e}`));
+	}
+}
+async function buyBoost(stt, axios, token, id, type) {
+	try{ 
+        const headers = {
+			authorization: token
+		};
+		const payload ={
+			type: type,
+			uid: id
+		}
+		const response = await axios.post(`https://tgapp-api.digibuy.io/api/tgapp/v1/daily/task/purchase`, payload, {headers});
+		if (response && response.status == 200) {
+			console.log(blue.bold(`[Nauquu.Digiverse] Account ${stt} | ${response.data.msg}`));
+		} 
+	}catch(e){
+		if (e.response.data.code == 400) {
+			console.log(blue.bold(`[Nauquu.Digiverse] Account ${stt} | ${e.response.data.msg}`));
+		} else console.log(red.bold(`[Nauquu.Digiverse] Account ${stt} | buyBoost err: ${e}`));
+	}
+}
+async function checkIn(stt, axios, token, id) {
+	try{ 
+        const headers = {
+			authorization: token
+		};
+		const payload ={
+			type: "daily_check_in",
+			uid: id
+		}
+		const response = await axios.post(`https://tgapp-api.digibuy.io/api/tgapp/v1/daily/task/checkIn`, payload, {headers});
+		if (response && response.status == 200) {
+			console.log(blue.bold(`[Nauquu.Digiverse] Account ${stt} | ${response.data.msg}`));
+		} 
+	}catch(e){
+		if (e.response.data.code == 400) {
+			console.log(blue.bold(`[Nauquu.Digiverse] Account ${stt} | ${e.response.data.msg}`));
+		} else console.log(red.bold(`[Nauquu.Digiverse] Account ${stt} | checkIn err: ${e}`));
 	}
 }
 async function getReward(stt, axios, token, id) {
@@ -94,7 +132,7 @@ async function getReward(stt, axios, token, id) {
 			} else await startFarm(stt, axios, token, id)
 		}
 	}catch(e){
-		console.log(`[*] Account ${stt} | getReward err: ${e}`);
+		console.log(red.bold(`[Nauquu.Digiverse] Account ${stt} | getReward err: ${e}`));
 	}
 }
 async function startFarm(stt, axios, token, id) {
@@ -110,7 +148,7 @@ async function startFarm(stt, axios, token, id) {
 			console.log(green.bold(`[Nauquu.Digiverse] Account ${stt} | Start farming`));
 		}
 	}catch(e){
-		console.log(`[*] Account ${stt} | startFarm err: ${e}`);
+		console.log(red.bold(`[Nauquu.Digiverse] Account ${stt} | startFarm err: ${e}`));
 	}
 }
 async function claimReward(stt, axios, token, id) {
@@ -126,7 +164,7 @@ async function claimReward(stt, axios, token, id) {
 			console.log(green.bold(`[Nauquu.Digiverse] Account ${stt} | Start farming`));
 		}
 	}catch(e){
-		console.log(`[*] Account ${stt} | claimReward err: ${e}`);
+		console.log(red.bold(`[Nauquu.Digiverse] Account ${stt} | claimReward err: ${e}`));
 	}
 }
 async function getUserData(stt, axios, token, id)
@@ -143,7 +181,7 @@ async function getUserData(stt, axios, token, id)
 			return response.data.data;
 		}
 	}catch(e){
-		console.log(`[*] Account ${stt} | getUserData err: ${e}`);
+		console.log(red.bold(`[Nauquu.Digiverse] Account ${stt} | getUserData err: ${e}`));
 		
 	}
 }
@@ -159,17 +197,55 @@ async function getTask(stt, axios, token, id)
 		const response = await axios.post(`https://tgapp-api.digibuy.io/api/tgapp/v1/tasks/list`, payload, {headers});
 		if (response && response.status == 200) {
 			const taskList = response.data.data
-			for (const category of taskList) {
-				if (category) {
-					for (const task of category) {
-						if (!task.complete) await startTask(stt, axios, token, id)
+			for (const key in taskList) {
+				if (taskList[key]) {
+					for (const task of taskList[key]) {
+						if (!task.complete) {
+							await startTask(stt, axios, token, id, task.name)
+							await sleep(randomInt(2,5))
+							await claimTask(stt, axios, token, id, task.name)
+						}
 					}
 				}
 			}
 		}
 	}catch(e){
-		console.log(`[*] Account ${stt} | getTask err: ${e}`);
+		console.log(red.bold(`[Nauquu.Digiverse] Account ${stt} | getTask err: ${e}`));
 		
+	}
+}
+async function startTask(stt, axios, token, id, type) {
+	try{ 
+        const headers = {
+			authorization: token
+		};
+		const payload = {
+			uid: id,
+			type: type
+		}
+		const response = await axios.post(`https://tgapp-api.digibuy.io/api/tgapp/v1/tasks/complete`, payload, {headers});
+		if (response && response.status == 200) {
+			console.log(magenta.bold(`[Nauquu.Digiverse] Account ${stt} | Start ${type}`));
+		}
+	}catch(e){
+		console.log(red.bold(`[Nauquu.Digiverse] Account ${stt} | startTask err: ${e}`));
+	}
+}
+async function claimTask(stt, axios, token, id, type) {
+	try{ 
+        const headers = {
+			authorization: token
+		};
+		const payload = {
+			uid: id,
+			type: type
+		}
+		const response = await axios.post(`https://tgapp-api.digibuy.io/api/tgapp/v1/tasks/claim`, payload, {headers});
+		if (response && response.status == 200) {
+			console.log(magenta.bold(`[Nauquu.Digiverse] Account ${stt} | Complete ${type}`));
+		}
+	}catch(e){
+		console.log(red.bold(`[Nauquu.Digiverse] Account ${stt} | claimTask err: ${e}`));
 	}
 }
 
@@ -189,30 +265,20 @@ async function main(stt, account, axios) {
 			username: user.username,
 			tg_login_params: params.tgWebAppData
 		};
-		console.log(cyan.bold(`[#] Account ${stt} | Login...`));
+		console.log(cyan.bold(`[Nauquu.Digiverse] Account ${stt} | Login...`));
 		await sleep(5);
 		const token = await login(stt, uInfo, axios)
 		if (token) {
-			const uData = await getUserData(stt, urlData, axios)
-
+			const uData = await getUserData(stt, axios, token, uInfo.uid)
+			const {Nickname, Balance} = uData
+			console.log(yellow.bold(`[Nauquu.Digiverse] Account ${stt} | User: ${Nickname}, Balance: ${Balance}`));
+			await checkIn(stt, axios, token, uInfo.uid)
+			await getReward(stt, axios, token, uInfo.uid)
+			await getStatus(stt, axios, token, uInfo.uid)
+			await getTask(stt, axios, token, uInfo.uid)
 		}
-		console.log(token);
-		
-		// const balance = await getBalance(stt, urlData, axios)
-		// if (uData) {
-		// 	console.log(green.bold(`[#] Account ${stt} | User: ${uData.username}, Balance: ${balance}, Tap: ${uData.clickNumberLeft}`));
-		// 	if (uData.clickNumberLeft) {
-		// 		await tap(stt, urlData, axios, uData.clickNumberLeft)
-		// 	}
-		// 	if (uData.isClaimableFarming) {
-		// 		await claimFarm(stt, urlData, axios)
-		// 		await startFarm(stt, urlData, axios)
-		// 	} else {
-		// 		const farmEndAt = new Date(uData.lastFarmingTime + 4*3600*1000)
-		// 		console.log(green.bold(`[#] Account ${stt} | Farm end at ${formatTimeToUTC7(farmEndAt)}`));
-		// 	}
-		// }
-		// console.log(cyan.bold(`[#] Account ${stt} | Done!`));
+	
+		console.log(cyan.bold(`[#] Account ${stt} | Done!`));
 
 	} catch (e) {
 		console.log(`Main Err: ${e}`);
