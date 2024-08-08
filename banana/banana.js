@@ -1,6 +1,6 @@
 import querystring from 'querystring';
 import { countdown, randomInt, sleep, getData, formatTimeToUTC7 } from './utils.js';
-import { cyan, yellow, blue, green, magenta, gray, red } from 'console-log-colors';
+import { cyan, yellow, blue, green, magenta, gray, red, redBG } from 'console-log-colors';
 import AxiosHelpers from "./helpers/axiosHelper.js";
 
 const accounts = getData("data_banana.txt");
@@ -134,7 +134,7 @@ async function doShare(stt, axios, token, bananaId)
 		console.log(red.bold(`[Nauquu.Banana] Account ${stt} | doShare err: ${e}`));
 	}
 }
-async function getBananaList(stt, axios, token,equip_banana_id)
+async function getBananaList(stt, axios, token, equip_banana_id)
 {
 	try{
 		const headers ={
@@ -144,8 +144,12 @@ async function getBananaList(stt, axios, token,equip_banana_id)
 		if (response && response.status == 200) {
 			const bananaList = response.data.data.banana_list
 			const bananaOwner = bananaList.filter(banana => banana.count)
-			const maxPeelBanana = bananaOwner.reduce((max, banana) => 
-				banana.daily_peel_limit > max.daily_peel_limit ? banana : max, bananaOwner[0]);
+			const maxPeelBanana = bananaOwner.reduce((max, banana) => {
+				if (banana.sell_exchange_usdt > 0) {
+					console.log(redBG.green.bold(`[Nauquu.Banana] Account ${stt} | ${banana.count} Banana ${banana.name} Price: ${banana.sell_exchange_usdt}`));
+				}
+				return banana.daily_peel_limit > max.daily_peel_limit ? banana : max, bananaOwner[0];
+			})
 			if (equip_banana_id != maxPeelBanana.banana_id) {
 				await equipBanana(stt, axios, token, maxPeelBanana.banana_id, maxPeelBanana.name)
 			}
