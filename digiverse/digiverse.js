@@ -21,6 +21,7 @@ function createAxiosInstance(proxy) {
 			"priority": "u=1, i",
 			"sec-ch-ua": "\"Google Chrome\";v=\"125\", \"Chromium\";v=\"125\", \"Not.A/Brand\";v=\"24\"",
             "Origin": "https://tgapp.digibuy.io",
+			'author': 'https://t.me/nauquu',
             "Referer": "https://tgapp.digibuy.io/",
 			"sec-ch-ua-mobile": "?0",
 			"sec-ch-ua-platform": "\"Windows\"",
@@ -159,9 +160,9 @@ async function claimReward(stt, axios, token, id) {
 		const payload = {
 			uid: id
 		}
-		const response = await axios.post(``, payload, {headers});
+		const response = await axios.post(`https://tgapp-api.digibuy.io/api/tgapp/v1/point/reward/claim`, payload, {headers});
 		if (response && response.status == 200) {
-			console.log(green.bold(`[Nauquu.Digiverse] Account ${stt} | Start farming`));
+			console.log(green.bold(`[Nauquu.Digiverse] Account ${stt} | Claim farm, Balance: ${response.data.data}`));
 		}
 	}catch(e){
 		console.log(red.bold(`[Nauquu.Digiverse] Account ${stt} | claimReward err: ${e}`));
@@ -248,7 +249,43 @@ async function claimTask(stt, axios, token, id, type) {
 		console.log(red.bold(`[Nauquu.Digiverse] Account ${stt} | claimTask err: ${e}`));
 	}
 }
-
+async function playGame(stt, axios, token) {
+	try{ 
+        const headers = {
+			authorization: token
+		};
+		const response = await axios.get(`https://tgapp-api.digibuy.io/api/tgapp/v1/game/play`, {headers});
+		if (response && response.status == 200) {
+			console.log(green.bold(`[Nauquu.Digiverse] Account ${stt} | ${response.data.data.game_count} games remain`))
+			if (response.data.data.game_count) {
+				console.log(yellow.bold(`[Nauquu.Digiverse] Account ${stt} | Playing game...`));
+				await sleep(30)
+				await claimGame(stt, axios, token, response.data.data.game_id)
+				await sleep(2)
+				await playGame(stt, axios, token)
+			}
+		}
+	}catch(e){
+		console.log(red.bold(`[Nauquu.Digiverse] Account ${stt} | playGame err: ${e}`));
+	}
+}
+async function claimGame(stt, axios, token, gameId) {
+	try{ 
+        const headers = {
+			authorization: token
+		};
+		const payload = {
+			"game_id": gameId,
+			point: randomInt(120,150)
+		}
+		const response = await axios.post(`https://tgapp-api.digibuy.io/api/tgapp/v1/game/claim`, payload, {headers});
+		if (response && response.status == 200) {
+			console.log(yellow.bold(`[Nauquu.Digiverse] Account ${stt} | Claimed game, Balance =+ ${payload.point}`));
+		}
+	}catch(e){
+		console.log(red.bold(`[Nauquu.Digiverse] Account ${stt} | claimGame err: ${e}`));
+	}
+}
 //
 async function main(stt, account, axios) {
 	try {
@@ -276,6 +313,7 @@ async function main(stt, account, axios) {
 			await getReward(stt, axios, token, uInfo.uid)
 			await getStatus(stt, axios, token, uInfo.uid)
 			await getTask(stt, axios, token, uInfo.uid)
+			await playGame(stt, axios, token, uInfo.uid)
 		}
 	
 		console.log(cyan.bold(`[#] Account ${stt} | Done!`));
